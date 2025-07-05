@@ -1,0 +1,20 @@
+{
+  "name": "moobi-chat-mcp-supabase",
+  "version": "1.0.0",
+  "description": "Servidor MCP para integração direta com Supabase do Moobi Chat",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.4.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "postgres": "^3.4.0",
+    "dotenv": "^16.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+} 

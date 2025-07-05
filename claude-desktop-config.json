@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "moobi-chat-supabase": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\fabio.stampone\\Documents\\Projetos Pessoais\\Moobi Chat\\mcp-server\\supabase-mcp.js"
+      ],
+      "env": {
+        "SUPABASE_URL": "https://gnnazztjaeukllmnnxyj.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdubmF6enRqYWV1a2xsbW5ueHlqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEzODY4OTMsImV4cCI6MjA2Njk2Mjg5M30.XIS2x3K4rMiLaWQ8Nlrd-Aw8k_RHGkZjFdGTEpFrsyw"
+      }
+    }
+  }
+}

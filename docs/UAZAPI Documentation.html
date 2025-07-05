@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<!-- saved from url=(0039)https://free.uazapi.com/docs/index.html -->
+<html lang="en" data-theme="light"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>UAZAPI Documentation</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">:root, :host {
+  --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Solid";
+  --fa-font-regular: normal 400 1em/1 "Font Awesome 6 Regular";
+  --fa-font-light: normal 300 1em/1 "Font Awesome 6 Light";
+  --fa-font-thin: normal 100 1em/1 "Font Awesome 6 Thin";
+  --fa-font-duotone: normal 900 1em/1 "Font Awesome 6 Duotone";
+  --fa-font-brands: normal 400 1em/1 "Font Awesome 6 Brands";
+}
+
+svg:not(:root).svg-inline--fa, svg:not(:host).svg-inline--fa {
+  overflow: visible;
+  box-sizing: content-box;
+}
+
+.svg-inline--fa {
+  display: var(--fa-display, inline-block);
+  height: 1em;
+  overflow: visible;
+  vertical-align: -0.125em;
+}
+.svg-inline--fa.fa-2xs {
+  vertical-align: 0.1em;
+}
+.svg-inline--fa.fa-xs {
+  vertical-align: 0em;
+}
+.svg-inline--fa.fa-sm {
+  vertical-align: -0.0714285705em;
+}
+.svg-inline--fa.fa-lg {
+  vertical-align: -0.2em;
+}
+.svg-inline--fa.fa-xl {
+  vertical-align: -0.25em;
+}
+.svg-inline--fa.fa-2xl {
+  vertical-align: -0.3125em;
+}
+.svg-inline--fa.fa-pull-left {
+  margin-right: var(--fa-pull-margin, 0.3em);
+  width: auto;
+}
+.svg-inline--fa.fa-pull-right {
+  margin-left: var(--fa-pull-margin, 0.3em);
+  width: auto;
+}
+.svg-inline--fa.fa-li {
+  width: var(--fa-li-width, 2em);
+  top: 0.25em;
+}
+.svg-inline--fa.fa-fw {
+  width: var(--fa-fw-width, 1.25em);
+}
+
+.fa-layers svg.svg-inline--fa {
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.fa-layers-counter, .fa-layers-text {
+  display: inline-block;
+  position: absolute;
+  text-align: center;
+}
+
+.fa-layers {
+  display: inline-block;
+  height: 1em;
+  position: relative;
+  text-align: center;
+  vertical-align: -0.125em;
+  width: 1em;
+}
+.fa-layers svg.svg-inline--fa {
+  -webkit-transform-origin: center center;
+          transform-origin: center center;
+}
+
+.fa-layers-text {
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  -webkit-transform-origin: center center;
+          transform-origin: center center;
+}
+
+.fa-layers-counter {
+  background-color: var(--fa-counter-background-color, #ff253a);
+  border-radius: var(--fa-counter-border-radius, 1em);
+  box-sizing: border-box;
+  color: var(--fa-inverse, #fff);
+  line-height: var(--fa-counter-line-height, 1);
+  max-width: var(--fa-counter-max-width, 5em);
+  min-width: var(--fa-counter-min-width, 1.5em);
+  overflow: hidden;
+  padding: var(--fa-counter-padding, 0.25em 0.5em);
+  right: var(--fa-right, 0);
+  text-overflow: ellipsis;
+  top: var(--fa-top, 0);
+  -webkit-transform: scale(var(--fa-counter-scale, 0.25));
+          transform: scale(var(--fa-counter-scale, 0.25));
+  -webkit-transform-origin: top right;
+          transform-origin: top right;
+}
+
+.fa-layers-bottom-right {
+  bottom: var(--fa-bottom, 0);
+  right: var(--fa-right, 0);
+  top: auto;
+  -webkit-transform: scale(var(--fa-layers-scale, 0.25));
+          transform: scale(var(--fa-layers-scale, 0.25));
+  -webkit-transform-origin: bottom right;
+          transform-origin: bottom right;
+}
+
+.fa-layers-bottom-left {
+  bottom: var(--fa-bottom, 0);
+  left: var(--fa-left, 0);
+  right: auto;
+  top: auto;
+  -webkit-transform: scale(var(--fa-layers-scale, 0.25));
+          transform: scale(var(--fa-layers-scale, 0.25));
+  -webkit-transform-origin: bottom left;
+          transform-origin: bottom left;
+}
+
+.fa-layers-top-right {
+  top: var(--fa-top, 0);
+  right: var(--fa-right, 0);
+  -webkit-transform: scale(var(--fa-layers-scale, 0.25));
+          transform: scale(var(--fa-layers-scale, 0.25));
+  -webkit-transform-origin: top right;
+          transform-origin: top right;
+}
+
+.fa-layers-top-left {
+  left: var(--fa-left, 0);
+  right: auto;
+  top: var(--fa-top, 0);
+  -webkit-transform: scale(var(--fa-layers-scale, 0.25));
+          transform: scale(var(--fa-layers-scale, 0.25));
+  -webkit-transform-origin: top left;
+          transform-origin: top left;
+}
+
+.fa-1x {
+  font-size: 1em;
+}
+
+.fa-2x {
+  font-size: 2em;
+}
+
+.fa-3x {
+  font-size: 3em;
+}
+
+.fa-4x {
+  font-size: 4em;
+}
+
+.fa-5x {
+  font-size: 5em;
+}
+
+.fa-6x {
+  font-size: 6em;
+}
+
+.fa-7x {
+  font-size: 7em;
+}
+
+.fa-8x {
+  font-size: 8em;
+}
+
+.fa-9x {
+  font-size: 9em;
+}
+
+.fa-10x {
+  font-size: 10em;
+}
+
+.fa-2xs {
+  font-size: 0.625em;
+  line-height: 0.1em;
+  vertical-align: 0.225em;
+}
+
+.fa-xs {
+  font-size: 0.75em;
+  line-height: 0.0833333337em;
+  vertical-align: 0.125em;
+}
+
+.fa-sm {
+  font-size: 0.875em;
+  line-height: 0.0714285718em;
+  vertical-align: 0.0535714295em;
+}
+
+.fa-lg {
+  font-size: 1.25em;
+  line-height: 0.05em;
+  vertical-align: -0.075em;
+}
+
+.fa-xl {
+  font-size: 1.5em;
+  line-height: 0.0416666682em;
+  vertical-align: -0.125em;
+}
+
+.fa-2xl {
+  font-size: 2em;
+  line-height: 0.03125em;
+  vertical-align: -0.1875em;
+}
+
+.fa-fw {
+  text-align: center;
+  width: 1.25em;
+}
+
+.fa-ul {
+  list-style-type: none;
+  margin-left: var(--fa-li-margin, 2.5em);
+  padding-left: 0;
+}
+.fa-ul > li {
+  position: relative;
+}
+
+.fa-li {
+  left: calc(var(--fa-li-width, 2em) * -1);
+  position: absolute;
+  text-align: center;
+  width: var(--fa-li-width, 2em);
+  line-height: inherit;
+}
+
+.fa-border {
+  border-color: var(--fa-border-color, #eee);
+  border-radius: var(--fa-border-radius, 0.1em);
+  border-style: var(--fa-border-style, solid);
+  border-width: var(--fa-border-width, 0.08em);
+  padding: var(--fa-border-padding, 0.2em 0.25em 0.15em);
+}
+
+.fa-pull-left {
+  float: left;
+  margin-right: var(--fa-pull-margin, 0.3em);
+}
+
+.fa-pull-right {
+  float: right;
+  margin-left: var(--fa-pull-margin, 0.3em);
+}
+
+.fa-beat {
+  -webkit-animation-name: fa-beat;
+          animation-name: fa-beat;
+  -webkit-animation-delay: var(--fa-animation-delay, 0);
+          animation-delay: var(--fa-animation-delay, 0);
+  -webkit-animation-direction: var(--fa-animation-direction, normal);
+          animation-direction: var(--fa-animation-direction, normal);
+  -webkit-animation-duration: var(--fa-animation-duration, 1s);
+          animation-duration: var(--fa-animation-duration, 1s);
+  -webkit-animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+          animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  -webkit-animation-timing-function: var(--fa-animation-timing, ease-in-out);
+          animation-timing-function: var(--fa-animation-timing, ease-in-out);
+}
+
+.fa-bounce {
+  -webkit-animation-name: fa-bounce;
+          animation-name: fa-bounce;
+  -webkit-animation-delay: var(--fa-animation-delay, 0);
+          animation-delay: var(--fa-animation-delay, 0);
+  -webkit-animation-direction: var(--fa-animation-direction, normal);
+          animation-direction: var(--fa-animation-direction, normal);
+  -webkit-animation-duration: var(--fa-animation-duration, 1s);
+          animation-duration: var(--fa-animation-duration, 1s);
+  -webkit-animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+          animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  -webkit-animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.28, 0.84, 0.42, 1));
+          animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.28, 0.84, 0.42, 1));
+}
+
+.fa-fade {
+  -webkit-animation-name: fa-fade;
+          animation-name: fa-fade;
+  -webkit-animation-delay: var(--fa-animation-delay, 0);
+          animation-delay: var(--fa-animation-delay, 0);
+  -webkit-animation-direction: var(--fa-animation-direction, normal);
+          animation-direction: var(--fa-animation-direction, normal);
+  -webkit-animation-duration: var(--fa-animation-duration, 1s);
+          animation-duration: var(--fa-animation-duration, 1s);
+  -webkit-animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+          animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  -webkit-animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.4, 0, 0.6, 1));
+          animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.4, 0, 0.6, 1));
+}
+
+.fa-beat-fade {
+  -webkit-animation-name: fa-beat-fade;
+          animation-name: fa-beat-fade;
+  -webkit-animation-delay: var(--fa-animation-delay, 0);
+          animation-delay: var(--fa-animation-delay, 0);
+  -webkit-animation-direction: var(--fa-animation-direction, normal);
+          animation-direction: var(--fa-animation-direction, normal);
+  -webkit-animation-duration: var(--fa-animation-duration, 1s);
+          animation-duration: var(--fa-animation-duration, 1s);
+  -webkit-animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+          animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  -webkit-animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.4, 0, 0.6, 1));
+          animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.4, 0, 0.6, 1));
+}
+
+.fa-flip {
+  -webkit-animation-name: fa-flip;
+          animation-name: fa-flip;
+  -webkit-animation-delay: var(--fa-animation-delay, 0);
+          animation-delay: var(--fa-animation-delay, 0);
+  -webkit-animation-direction: var(--fa-animation-direction, normal);
+          animation-direction: var(--fa-animation-direction, normal);
+  -webkit-animation-duration: var(--fa-animation-duration, 1s);
+          animation-duration: var(--fa-animation-duration, 1s);
+  -webkit-animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+          animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  -webkit-animation-timing-function: var(--fa-animation-timing, ease-in-out);
+          animation-timing-function: var(--fa-animation-timing, ease-in-out);
+}
+
+.fa-shake {
+  -webkit-animation-name: fa-shake;
+          animation-name: fa-shake;
+  -webkit-animation-delay: var(--fa-animation-delay, 0);
+          animation-delay: var(--fa-animation-delay, 0);
+  -webkit-animation-direction: var(--fa-animation-direction, normal);
+          animation-direction: var(--fa-animation-direction, normal);
+  -webkit-animation-duration: var(--fa-animation-duration, 1s);
+          animation-duration: var(--fa-animation-duration, 1s);
+  -webkit-animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+          animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  -webkit-animation-timing-function: var(--fa-animation-timing, linear);
+          animation-timing-function: var(--fa-animation-timing, linear);
+}
+
+.fa-spin {
+  -webkit-animation-name: fa-spin;
+          animation-name: fa-spin;
+  -webkit-animation-delay: var(--fa-animation-delay, 0);
+          animation-delay: var(--fa-animation-delay, 0);
+  -webkit-animation-direction: var(--fa-animation-direction, normal);
+          animation-direction: var(--fa-animation-direction, normal);
+  -webkit-animation-duration: var(--fa-animation-duration, 2s);
+          animation-duration: var(--fa-animation-duration, 2s);
+  -webkit-animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+          animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  -webkit-animation-timing-function: var(--fa-animation-timing, linear);
+          animation-timing-function: var(--fa-animation-timing, linear);
+}
+
+.fa-spin-reverse {
+  --fa-animation-direction: reverse;
+}
+
+.fa-pulse,
+.fa-spin-pulse {
+  -webkit-animation-name: fa-spin;
+          animation-name: fa-spin;
+  -webkit-animation-direction: var(--fa-animation-direction, normal);
+          animation-direction: var(--fa-animation-direction, normal);
+  -webkit-animation-duration: var(--fa-animation-duration, 1s);
+          animation-duration: var(--fa-animation-duration, 1s);
+  -webkit-animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+          animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  -webkit-animation-timing-function: var(--fa-animation-timing, steps(8));
+          animation-timing-function: var(--fa-animation-timing, steps(8));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fa-beat,
+.fa-bounce,
+.fa-fade,
+.fa-beat-fade,
+.fa-flip,
+.fa-pulse,
+.fa-shake,
+.fa-spin,
+.fa-spin-pulse {
+    -webkit-animation-delay: -1ms;
+            animation-delay: -1ms;
+    -webkit-animation-duration: 1ms;
+            animation-duration: 1ms;
+    -webkit-animation-iteration-count: 1;
+            animation-iteration-count: 1;
+    transition-delay: 0s;
+    transition-duration: 0s;
+  }
+}
+@-webkit-keyframes fa-beat {
+  0%, 90% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+  45% {
+    -webkit-transform: scale(var(--fa-beat-scale, 1.25));
+            transform: scale(var(--fa-beat-scale, 1.25));
+  }
+}
+@keyframes fa-beat {
+  0%, 90% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+  45% {
+    -webkit-transform: scale(var(--fa-beat-scale, 1.25));
+            transform: scale(var(--fa-beat-scale, 1.25));
+  }
+}
+@-webkit-keyframes fa-bounce {
+  0% {
+    -webkit-transform: scale(1, 1) translateY(0);
+            transform: scale(1, 1) translateY(0);
+  }
+  10% {
+    -webkit-transform: scale(var(--fa-bounce-start-scale-x, 1.1), var(--fa-bounce-start-scale-y, 0.9)) translateY(0);
+            transform: scale(var(--fa-bounce-start-scale-x, 1.1), var(--fa-bounce-start-scale-y, 0.9)) translateY(0);
+  }
+  30% {
+    -webkit-transform: scale(var(--fa-bounce-jump-scale-x, 0.9), var(--fa-bounce-jump-scale-y, 1.1)) translateY(var(--fa-bounce-height, -0.5em));
+            transform: scale(var(--fa-bounce-jump-scale-x, 0.9), var(--fa-bounce-jump-scale-y, 1.1)) translateY(var(--fa-bounce-height, -0.5em));
+  }
+  50% {
+    -webkit-transform: scale(var(--fa-bounce-land-scale-x, 1.05), var(--fa-bounce-land-scale-y, 0.95)) translateY(0);
+            transform: scale(var(--fa-bounce-land-scale-x, 1.05), var(--fa-bounce-land-scale-y, 0.95)) translateY(0);
+  }
+  57% {
+    -webkit-transform: scale(1, 1) translateY(var(--fa-bounce-rebound, -0.125em));
+            transform: scale(1, 1) translateY(var(--fa-bounce-rebound, -0.125em));
+  }
+  64% {
+    -webkit-transform: scale(1, 1) translateY(0);
+            transform: scale(1, 1) translateY(0);
+  }
+  100% {
+    -webkit-transform: scale(1, 1) translateY(0);
+            transform: scale(1, 1) translateY(0);
+  }
+}
+@keyframes fa-bounce {
+  0% {
+    -webkit-transform: scale(1, 1) translateY(0);
+            transform: scale(1, 1) translateY(0);
+  }
+  10% {
+    -webkit-transform: scale(var(--fa-bounce-start-scale-x, 1.1), var(--fa-bounce-start-scale-y, 0.9)) translateY(0);
+            transform: scale(var(--fa-bounce-start-scale-x, 1.1), var(--fa-bounce-start-scale-y, 0.9)) translateY(0);
+  }
+  30% {
+    -webkit-transform: scale(var(--fa-bounce-jump-scale-x, 0.9), var(--fa-bounce-jump-scale-y, 1.1)) translateY(var(--fa-bounce-height, -0.5em));
+            transform: scale(var(--fa-bounce-jump-scale-x, 0.9), var(--fa-bounce-jump-scale-y, 1.1)) translateY(var(--fa-bounce-height, -0.5em));
+  }
+  50% {
+    -webkit-transform: scale(var(--fa-bounce-land-scale-x, 1.05), var(--fa-bounce-land-scale-y, 0.95)) translateY(0);
+            transform: scale(var(--fa-bounce-land-scale-x, 1.05), var(--fa-bounce-land-scale-y, 0.95)) translateY(0);
+  }
+  57% {
+    -webkit-transform: scale(1, 1) translateY(var(--fa-bounce-rebound, -0.125em));
+            transform: scale(1, 1) translateY(var(--fa-bounce-rebound, -0.125em));
+  }
+  64% {
+    -webkit-transform: scale(1, 1) translateY(0);
+            transform: scale(1, 1) translateY(0);
+  }
+  100% {
+    -webkit-transform: scale(1, 1) translateY(0);
+            transform: scale(1, 1) translateY(0);
+  }
+}
+@-webkit-keyframes fa-fade {
+  50% {
+    opacity: var(--fa-fade-opacity, 0.4);
+  }
+}
+@keyframes fa-fade {
+  50% {
+    opacity: var(--fa-fade-opacity, 0.4);
+  }
+}
+@-webkit-keyframes fa-beat-fade {
+  0%, 100% {
+    opacity: var(--fa-beat-fade-opacity, 0.4);
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    -webkit-transform: scale(var(--fa-beat-fade-scale, 1.125));
+            transform: scale(var(--fa-beat-fade-scale, 1.125));
+  }
+}
+@keyframes fa-beat-fade {
+  0%, 100% {
+    opacity: var(--fa-beat-fade-opacity, 0.4);
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    -webkit-transform: scale(var(--fa-beat-fade-scale, 1.125));
+            transform: scale(var(--fa-beat-fade-scale, 1.125));
+  }
+}
+@-webkit-keyframes fa-flip {
+  50% {
+    -webkit-transform: rotate3d(var(--fa-flip-x, 0), var(--fa-flip-y, 1), var(--fa-flip-z, 0), var(--fa-flip-angle, -180deg));
+            transform: rotate3d(var(--fa-flip-x, 0), var(--fa-flip-y, 1), var(--fa-flip-z, 0), var(--fa-flip-angle, -180deg));
+  }
+}
+@keyframes fa-flip {
+  50% {
+    -webkit-transform: rotate3d(var(--fa-flip-x, 0), var(--fa-flip-y, 1), var(--fa-flip-z, 0), var(--fa-flip-angle, -180deg));
+            transform: rotate3d(var(--fa-flip-x, 0), var(--fa-flip-y, 1), var(--fa-flip-z, 0), var(--fa-flip-angle, -180deg));
+  }
+}
+@-webkit-keyframes fa-shake {
+  0% {
+    -webkit-transform: rotate(-15deg);
+            transform: rotate(-15deg);
+  }
+  4% {
+    -webkit-transform: rotate(15deg);
+            transform: rotate(15deg);
+  }
+  8%, 24% {
+    -webkit-transform: rotate(-18deg);
+            transform: rotate(-18deg);
+  }
+  12%, 28% {
+    -webkit-transform: rotate(18deg);
+            transform: rotate(18deg);
+  }
+  16% {
+    -webkit-transform: rotate(-22deg);
+            transform: rotate(-22deg);
+  }
+  20% {
+    -webkit-transform: rotate(22deg);
+            transform: rotate(22deg);
+  }
+  32% {
+    -webkit-transform: rotate(-12deg);
+            transform: rotate(-12deg);
+  }
+  36% {
+    -webkit-transform: rotate(12deg);
+            transform: rotate(12deg);
+  }
+  40%, 100% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+}
+@keyframes fa-shake {
+  0% {
+    -webkit-transform: rotate(-15deg);
+            transform: rotate(-15deg);
+  }
+  4% {
+    -webkit-transform: rotate(15deg);
+            transform: rotate(15deg);
+  }
+  8%, 24% {
+    -webkit-transform: rotate(-18deg);
+            transform: rotate(-18deg);
+  }
+  12%, 28% {
+    -webkit-transform: rotate(18deg);
+            transform: rotate(18deg);
+  }
+  16% {
+    -webkit-transform: rotate(-22deg);
+            transform: rotate(-22deg);
+  }
+  20% {
+    -webkit-transform: rotate(22deg);
+            transform: rotate(22deg);
+  }
+  32% {
+    -webkit-transform: rotate(-12deg);
+            transform: rotate(-12deg);
+  }
+  36% {
+    -webkit-transform: rotate(12deg);
+            transform: rotate(12deg);
+  }
+  40%, 100% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+}
+@-webkit-keyframes fa-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+@keyframes fa-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+.fa-rotate-90 {
+  -webkit-transform: rotate(90deg);
+          transform: rotate(90deg);
+}
+
+.fa-rotate-180 {
+  -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+}
+
+.fa-rotate-270 {
+  -webkit-transform: rotate(270deg);
+          transform: rotate(270deg);
+}
+
+.fa-flip-horizontal {
+  -webkit-transform: scale(-1, 1);
+          transform: scale(-1, 1);
+}
+
+.fa-flip-vertical {
+  -webkit-transform: scale(1, -1);
+          transform: scale(1, -1);
+}
+
+.fa-flip-both,
+.fa-flip-horizontal.fa-flip-vertical {
+  -webkit-transform: scale(-1, -1);
+          transform: scale(-1, -1);
+}
+
+.fa-rotate-by {
+  -webkit-transform: rotate(var(--fa-rotate-angle, none));
+          transform: rotate(var(--fa-rotate-angle, none));
+}
+
+.fa-stack {
+  display: inline-block;
+  vertical-align: middle;
+  height: 2em;
+  position: relative;
+  width: 2.5em;
+}
+
+.fa-stack-1x,
+.fa-stack-2x {
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: var(--fa-stack-z-index, auto);
+}
+
+.svg-inline--fa.fa-stack-1x {
+  height: 1em;
+  width: 1.25em;
+}
+.svg-inline--fa.fa-stack-2x {
+  height: 2em;
+  width: 2.5em;
+}
+
+.fa-inverse {
+  color: var(--fa-inverse, #fff);
+}
+
+.sr-only,
+.fa-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:not(:focus),
+.fa-sr-only-focusable:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.svg-inline--fa .fa-primary {
+  fill: var(--fa-primary-color, currentColor);
+  opacity: var(--fa-primary-opacity, 1);
+}
+
+.svg-inline--fa .fa-secondary {
+  fill: var(--fa-secondary-color, currentColor);
+  opacity: var(--fa-secondary-opacity, 0.4);
+}
+
+.svg-inline--fa.fa-swap-opacity .fa-primary {
+  opacity: var(--fa-secondary-opacity, 0.4);
+}
+
+.svg-inline--fa.fa-swap-opacity .fa-secondary {
+  opacity: var(--fa-primary-opacity, 1);
+}
+
+.svg-inline--fa mask .fa-primary,
+.svg-inline--fa mask .fa-secondary {
+  fill: black;
+}
+
+.fad.fa-inverse,
+.fa-duotone.fa-inverse {
+  color: var(--fa-inverse, #fff);
+}</style><link rel="stylesheet" href="./UAZAPI Documentation_files/styles.min.css">
+    <link rel="stylesheet" href="./UAZAPI Documentation_files/custom.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+        }
+        #docs {
+            height: 100%;
+            width: 100%;
+        }
+      
+
+        elements-api [data-icon="bullseye"] {
+                display: none !important;
+            }
+
+        a[href*="stoplight.io"],
+        .sl-flex.sl-items-center.sl-px-4.sl-py-3.sl-border-t {
+            display: none !important;
+        }
+
+    </style>
+    <script src="./UAZAPI Documentation_files/web-components.min.js.download"></script>
+</head>
+<body>
+    <div class="theme-toggle-container">
+        <button id="theme-toggle" class="theme-toggle">
+            <svg aria-hidden="true" class="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5s5-2.24 5-5s-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0a.996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0a.996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 0 0 0-1.41l-1.06-1.06zm1.06-10.6a.996.996 0 0 0 0-1.41a.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41a.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"></path></svg>
+            <svg aria-hidden="true" class="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1-8.313-12.454z"></path></svg>
+        </button>
+    </div>
+
+    <elements-api apidescriptionurl="/docs/openapi.yaml" router="hash" layout="responsive" hideinternal="false" hideexport="false" tryitcredentialspolicy="include" apidescriptiondocument="openapi: 3.1.0
+info:
+  title: uazapiGO -  WhatsApp API (v2.0)
+  version: 1.0.0
+  description: |
+    API para gerenciamento de instâncias do WhatsApp e comunicações.
+
+    ## Autenticação
+    - Endpoints regulares requerem um header &#39;token&#39; com o token da instância
+    - Endpoints administrativos requerem um header &#39;admintoken&#39;
+
+    ## Estados da Instância
+    As instâncias podem estar nos seguintes estados:
+    - `disconnected`: Desconectado do WhatsApp
+    - `connecting`: Em processo de conexão
+    - `connected`: Conectado e autenticado com sucesso
+
+    ## Limites de Uso
+    - O servidor possui um limite máximo de instâncias conectadas
+    - Quando o limite é atingido, novas tentativas receberão erro 429
+    - Servidores gratuitos/demo podem ter restrições adicionais de tempo de vida
+
+servers:
+  - url: &#39;&#39;
+    description: None
+  - url: &#39;https://free.uazapi.com&#39;
+    description: Current Server
+  - url: &#39;https://free.uazapi.dev&#39;
+    description: Free Test Server
+components:
+  securitySchemes:
+    token:
+      name: token
+      type: apiKey
+      in: header
+  schemas:
+    # Core models
+    Instance:
+      $ref: &#39;./schemas/instance.yaml#/Instance&#39;
+    Webhook:
+      $ref: &#39;./schemas/webhook.yaml#/Webhook&#39;
+    Chat:
+      $ref: &#39;./schemas/chat.yaml#/Chat&#39;
+    Message:
+      $ref: &#39;./schemas/message.yaml#/Message&#39;
+    Label:
+      $ref: &#39;./schemas/label.yaml#/Label&#39;
+    Attendant:
+      $ref: &#39;./schemas/attendant.yaml#/Attendant&#39;
+
+    # Chatbot AI components
+    ChatbotTrigger:
+      $ref: &#39;./schemas/chatbot_trigger.yaml#/ChatbotTrigger&#39;
+    ChatbotAIAgent:
+      $ref: &#39;./schemas/chatbot_ai_agent.yaml#/ChatbotAIAgent&#39;
+    ChatbotAIFunction:
+      $ref: &#39;./schemas/chatbot_ai_function.yaml#/ChatbotAIFunction&#39;
+    ChatbotAIKnowledge:
+      $ref: &#39;./schemas/chatbot_ai_knowledge.yaml#/ChatbotAIKnowledge&#39;
+
+    
+    # Message handling
+    MessageQueueFolder:
+      $ref: &#39;./schemas/message_queue_folder.yaml#/MessageQueueFolder&#39;
+    
+    # Quick responses
+    QuickReply:
+      $ref: &#39;./schemas/quick_reply.yaml#/QuickReply&#39;
+    Group:
+      $ref: &quot;./schemas/group.yaml#/Group&quot;
+    GroupParticipant:
+      $ref: &quot;./schemas/group.yaml#/GroupParticipant&quot;
+    
+    # Additional models
+    # ImageName:
+    #   $ref: &#39;./schemas/image_name.yaml#/ImageName&#39;
+    # LeadTag:
+    #   $ref: &#39;./schemas/lead_tag.yaml#/LeadTag&#39;
+    # ChatbotFlow:
+    #   $ref: &#39;./schemas/chatbot_flow.yaml#/ChatbotFlow&#39;
+    # ChatbotFlowHistoric:
+    #   $ref: &#39;./schemas/chatbot_flow_historic.yaml#/ChatbotFlowHistoric&#39;
+    WebhookEvent:
+      type: object
+      required:
+        - event
+        - instance
+        - data
+      properties:
+        event:
+          type: string
+          enum:
+            - message
+            - status
+            - presence
+            - group
+            - connection
+          description: Tipo do evento recebido
+        instance:
+          type: string
+          description: ID da instância que gerou o evento
+        data:
+          oneOf:
+            - $ref: &#39;#/components/schemas/MessageEventData&#39;
+            - $ref: &#39;#/components/schemas/StatusEventData&#39;
+            - $ref: &#39;#/components/schemas/PresenceEventData&#39;
+            - $ref: &#39;#/components/schemas/GroupEventData&#39;
+            - $ref: &#39;#/components/schemas/ConnectionEventData&#39;
+security:
+  - token: []
+tags:
+  - name: Admininstração
+  - name: Instancia
+  - name: Webhooks e SSE
+  - name: Enviar Mensagem
+  - name: Ações na mensagem e Buscar
+  - name: Chats
+  - name: Bloqueios
+  - name: Contatos
+  - name: Etiquetas
+  - name: Grupos e Comunidades
+  - name: Respostas Rápidas
+  - name: CRM
+  - name: Mensagem em massa
+  - name: Chatbot Configurações
+  - name: Chatbot Trigger
+  - name: Configuração do Agente de IA
+  - name: Conhecimento dos Agentes
+  - name: Funções API dos Agentes
+paths:
+  /instance/init:
+    $ref: ./paths/instance_init.yaml
+  /instance/all:
+    $ref: ./paths/instance_all.yaml
+  /instance/connect:
+    $ref: ./paths/instance_connect.yaml
+  /instance/disconnect:
+    $ref: ./paths/instance_disconnect.yaml
+ # /instance/hibernate:
+ #   $ref: ./paths/instance_hibernate.yaml
+  /instance/status:
+    $ref: ./paths/instance_status.yaml
+  /instance/updatechatbotsettings:
+    $ref: ./paths/instance_updatechatbotsettings.yaml
+  /instance/updateFieldsMap:
+    $ref: ./paths/instance_updatefieldsmap.yaml
+  /instance/updateInstanceName:
+    $ref: ./paths/instance_updateinstancename.yaml
+  /instance/updateAdminFields:
+    $ref: ./paths/instance_updateAdminFields.yaml
+  /instance:
+    $ref: ./paths/instance.yaml
+  /instance/updateDelaySettings:
+      $ref: &#39;paths/instance_delay_settings.yaml&#39;
+# eu não sei se as pessoas com isso vão achar que seus dados não estão seguros, que é simples alguém visualizar os dados
+#  /copydata: 
+#    $ref: ./paths/copydata.yaml
+  /send/text:
+    $ref: ./paths/send_text.yaml
+  /send/media:
+    $ref: ./paths/send_media.yaml
+  /send/contact:
+    $ref: ./paths/send_contact.yaml
+  /send/location:
+    $ref: ./paths/send_location.yaml
+  /message/presence:
+    $ref: ./paths/message_presence.yaml
+  /send/status:
+    $ref: ./paths/send_status.yaml
+  /send/menu:
+    $ref: ./paths/send_menu.yaml
+  /send/carousel:
+    $ref: ./paths/send_carousel.yaml
+  /send/location-button:
+    $ref: ./paths/send_location_button.yaml
+  /message/download:
+    $ref: ./paths/message_download.yaml
+  /message/find:
+    $ref: ./paths/message_find.yaml
+  /message/markread:
+    $ref: ./paths/message_markread.yaml
+  /message/react:
+    $ref: ./paths/message_react.yaml
+  /message/delete:
+    $ref: ./paths/message_delete.yaml
+  /group/create:
+    $ref: ./paths/group_create.yaml
+  /group/info:
+    $ref: ./paths/group_info.yaml
+  /group/inviteInfo:
+    $ref: ./paths/group_inviteinfo.yaml
+  /group/invitelink/:groupJID:
+    $ref: ./paths/group_invitelink_groupid.yaml
+  /group/join:
+    $ref: ./paths/group_join.yaml
+  /group/leave:
+    $ref: ./paths/group_leave.yaml
+  /group/list:
+    $ref: ./paths/group_list.yaml
+  /group/resetInviteCode:
+    $ref: ./paths/group_resetinvitecode.yaml
+  /group/updateAnnounce:
+    $ref: ./paths/group_updateannounce.yaml
+  /group/updateDescription:
+    $ref: ./paths/group_updatedescription.yaml
+  /group/updateImage:
+    $ref: ./paths/group_updateimage.yaml
+  /group/updateLocked:
+    $ref: ./paths/group_updatelocked.yaml
+  /group/updateName:
+    $ref: ./paths/group_updatename.yaml
+  /group/updateParticipants:
+    $ref: ./paths/group_updateparticipants.yaml
+  /community/create:
+    $ref: ./paths/community_create.yaml
+  /community/editgroups:
+    $ref: ./paths/community_editgroups.yaml
+  /webhook:
+    $ref: ./paths/webhook.yaml
+  /globalwebhook:
+    $ref: ./paths/globalwebhook.yaml
+  /sse:
+    $ref: ./paths/sse.yaml
+  /agent/edit:
+    $ref: ./paths/agent_edit.yaml
+  /agent/list:
+    $ref: ./paths/agent_list.yaml
+  # Endpoints de Mensagem em Massa
+  /sender/simple:
+    $ref: &#39;./paths/sender_simple.yaml&#39;
+  /sender/advanced:
+    $ref: &#39;./paths/sender_advanced.yaml&#39;
+  /sender/edit:
+    $ref: &#39;./paths/sender_edit.yaml&#39;
+  /sender/cleardone:
+    $ref: &#39;./paths/sender_cleardone.yaml&#39;
+  /sender/clearall:
+    $ref: &#39;./paths/sender_clearall.yaml&#39;
+  /sender/listfolders:
+    $ref: &#39;./paths/sender_listfolders.yaml&#39;
+  /sender/listmessages:
+    $ref: &#39;./paths/sender_listmessages.yaml&#39;
+  /trigger/edit:
+    $ref: ./paths/trigger_edit.yaml
+  /trigger/list:
+    $ref: ./paths/trigger_list.yaml
+  /knowledge/edit:
+    $ref: ./paths/knowledge_edit.yaml
+  /knowledge/list:
+    $ref: ./paths/knowledge_list.yaml
+  /function/edit:
+    $ref: ./paths/function_edit.yaml
+  /function/list:
+    $ref: ./paths/function_list.yaml
+  # /chat/label:
+  #   $ref: ./paths/chats_label.yaml
+  /chat/block:
+    $ref: ./paths/chats_block.yaml
+  /chat/blocklist:
+    $ref: ./paths/chats_blocklist.yaml
+  /chat/labels:
+    $ref: ./paths/chats_labels.yaml
+  /chat/delete:
+    $ref: ./paths/chats_delete.yaml
+  /chat/archive:
+    $ref: ./paths/chats_archive.yaml
+  /chat/read:
+    $ref: ./paths/chats_read.yaml
+  /chat/mute:
+    $ref: ./paths/chats_mute.yaml
+  /chat/pin:
+    $ref: ./paths/chats_pin.yaml
+  /chat/find:
+    $ref: ./paths/chats_find.yaml
+  /chat/count:
+    $ref: ./paths/chats_count.yaml
+  /chat/editLead:
+    $ref: ./paths/chats_lead.yaml
+  /chat/getContactDetails:
+    $ref: ./paths/chats_getcontactdetails.yaml
+  /chat/check:
+    $ref: ./paths/chats_check.yaml
+  /contacts:
+    $ref: ./paths/contacts.yaml
+  /label/edit:
+    $ref: ./paths/label_edit.yaml
+  /labels:
+    $ref: ./paths/labels.yaml
+  /quickreply/edit:
+    $ref: ./paths/quickreply_edit.yaml
+  /quickreply/showall:
+    $ref: ./paths/quickreply_showall.yaml
+
+# webhooks:
+#   message:
+#     post:
+#       summary: Evento de mensagem recebida
+#       description: Notifica quando uma nova mensagem é recebida na instância
+#       requestBody:
+#         content:
+#           application/json:
+#             schema:
+#               $ref: &#39;#/components/schemas/WebhookEvent&#39;
+#             example:
+#               event: message
+#               instance: &quot;123456&quot;
+#               data:
+#                 messageId: &quot;ABCD1234&quot;
+#                 from: &quot;5511999999999&quot;
+#                 fromMe: false
+#                 timestamp: 1634567890
+#                 type: &quot;text&quot;
+#                 content: 
+#                   text: &quot;Olá, bom dia!&quot;
+#       responses:
+#         &#39;200&#39;:
+#           description: Evento processado com sucesso
+
+#   status:
+#     post:
+#       summary: Evento de status de mensagem
+#       description: Notifica mudanças no status de entrega/leitura das mensagens
+#       requestBody:
+#         content:
+#           application/json:
+#             schema:
+#               $ref: &#39;#/components/schemas/WebhookEvent&#39;
+#             example:
+#               event: status
+#               instance: &quot;123456&quot;
+#               data:
+#                 messageId: &quot;ABCD1234&quot;
+#                 status: &quot;read&quot;
+#                 timestamp: 1634567890
+#       responses:
+#         &#39;200&#39;:
+#           description: Evento processado com sucesso
+
+#   presence:
+#     post:
+#       summary: Evento de presença
+#       description: Notifica mudanças no status de presença dos contatos
+#       requestBody:
+#         content:
+#           application/json:
+#             schema:
+#               $ref: &#39;#/components/schemas/WebhookEvent&#39;
+#             example:
+#               event: presence
+#               instance: &quot;123456&quot;
+#               data:
+#                 contact: &quot;5511999999999&quot;
+#                 status: &quot;online&quot;
+#                 lastSeen: 1634567890
+#       responses:
+#         &#39;200&#39;:
+#           description: Evento processado com sucesso
+
+#   group:
+#     post:
+#       summary: Evento de grupo
+#       description: Notifica alterações em grupos
+#       requestBody:
+#         content:
+#           application/json:
+#             schema:
+#               $ref: &#39;#/components/schemas/WebhookEvent&#39;
+#             example:
+#               event: group
+#               instance: &quot;123456&quot;
+#               data:
+#                 groupId: &quot;123456789@g.us&quot;
+#                 action: &quot;add&quot;
+#                 actor: &quot;5511999999999&quot;
+#                 participants: [&quot;5511888888888&quot;]
+#       responses:
+#         &#39;200&#39;:
+#           description: Evento processado com sucesso
+
+#   connection:
+#     post:
+#       summary: Evento de conexão
+#       description: Notifica mudanças no estado da conexão da instância
+#       requestBody:
+#         content:
+#           application/json:
+#             schema:
+#               $ref: &#39;#/components/schemas/WebhookEvent&#39;
+#             example:
+#               event: connection
+#               instance: &quot;123456&quot;
+#               data:
+#                 status: &quot;connected&quot;
+#                 timestamp: 1634567890
+#       responses:
+#         &#39;200&#39;:
+#           description: Evento processado com sucesso"><div style="height: 100%;"><div class="" id="mosaic-provider-react-aria-0-1" style="height: 100%;"><div data-overlay-container="true" class="" style="height: 100%;"><div class="sl-elements sl-antialiased sl-h-full sl-text-base sl-font-ui sl-text-body"><div class="sl-elements-api sl-flex sl-inset-0 sl-h-full"><div class="sl-flex" style="max-width: 450px;"><div class="sl-flex sl-overflow-y-auto sl-flex-col sl-sticky sl-inset-y-0 sl-pt-8 sl-bg-canvas-100 sl-border-r" style="padding-left: calc(50% - 900px); width: 300px; min-width: 300px;"><div class="sl-flex sl-items-center sl-mb-5 sl-ml-4"><h4 class="sl-text-paragraph sl-leading-snug sl-font-prose sl-font-semibold sl-text-heading">uazapiGO -  WhatsApp API (v2.0)</h4></div><div class="sl-flex sl-overflow-y-auto sl-flex-col sl-flex-grow sl-flex-shrink"><div class="sl-overflow-y-auto sl-w-full sl-bg-canvas-100"><div class="sl-my-3"><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/"><div id="sl-toc-/" title="Overview" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-primary-tint sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate">Overview</div><div class="sl-flex sl-items-center sl-text-xs"></div></div></a><div class="sl-text-sm sl-leading-relaxed sl-tracking-wide sl-font-bold sl-uppercase sl-mt-6 sl-mb-2 sl-pl-4">Endpoints</div><div title="Admininstração" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Admininstração</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Instancia" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Instancia</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Webhooks e SSE" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Webhooks e SSE</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Enviar Mensagem" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Enviar Mensagem</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Ações na mensagem e Buscar" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Ações na mensagem e Buscar</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Chats" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Chats</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Bloqueios" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Bloqueios</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Contatos" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Contatos</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Etiquetas" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Etiquetas</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Grupos e Comunidades" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Grupos e Comunidades</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Respostas Rápidas" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Respostas Rápidas</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="CRM" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">CRM</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Mensagem em massa" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Mensagem em massa</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Chatbot Configurações" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Chatbot Configurações</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Chatbot Trigger" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Chatbot Trigger</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Configuração do Agente de IA" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Configuração do Agente de IA</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Conhecimento dos Agentes" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Conhecimento dos Agentes</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div title="Funções API dos Agentes" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5">Funções API dos Agentes</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right fa-fw sl-icon sl-text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M96 480c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L242.8 256L73.38 86.63c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l192 192c12.5 12.5 12.5 32.75 0 45.25l-192 192C112.4 476.9 104.2 480 96 480z"></path></svg></div></div></div><div class="sl-text-sm sl-leading-relaxed sl-tracking-wide sl-font-bold sl-uppercase sl-mt-6 sl-mb-2 sl-pl-4">Schemas</div><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/Instance"><div id="sl-toc-/schemas/Instance" title="Instance" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">Instance</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/Webhook"><div id="sl-toc-/schemas/Webhook" title="Webhook" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">Webhook</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/Chat"><div id="sl-toc-/schemas/Chat" title="Chat" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">Chat</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/Message"><div id="sl-toc-/schemas/Message" title="Message" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">Message</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/Label"><div id="sl-toc-/schemas/Label" title="Label" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">Label</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/Attendant"><div id="sl-toc-/schemas/Attendant" title="Attendant" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">Attendant</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/ChatbotTrigger"><div id="sl-toc-/schemas/ChatbotTrigger" title="ChatbotTrigger" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">ChatbotTrigger</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/ChatbotAIAgent"><div id="sl-toc-/schemas/ChatbotAIAgent" title="ChatbotAIAgent" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">ChatbotAIAgent</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/ChatbotAIFunction"><div id="sl-toc-/schemas/ChatbotAIFunction" title="ChatbotAIFunction" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">ChatbotAIFunction</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/ChatbotAIKnowledge"><div id="sl-toc-/schemas/ChatbotAIKnowledge" title="ChatbotAIKnowledge" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">ChatbotAIKnowledge</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/MessageQueueFolder"><div id="sl-toc-/schemas/MessageQueueFolder" title="MessageQueueFolder" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">MessageQueueFolder</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/QuickReply"><div id="sl-toc-/schemas/QuickReply" title="QuickReply" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">QuickReply</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/Group"><div id="sl-toc-/schemas/Group" title="Group" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">Group</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/GroupParticipant"><div id="sl-toc-/schemas/GroupParticipant" title="GroupParticipant" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">GroupParticipant</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a><a class="ElementsTableOfContentsItem sl-block sl-no-underline" href="https://free.uazapi.com/docs/index.html#/schemas/WebhookEvent"><div id="sl-toc-/schemas/WebhookEvent" title="WebhookEvent" class="sl-flex sl-items-center sl-h-md sl-pr-4 sl-pl-4 sl-bg-canvas-100 hover:sl-bg-canvas-200 sl-cursor-pointer sl-select-none"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="cube" class="svg-inline--fa fa-cube sl-icon sl-text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M234.5 5.709C248.4 .7377 263.6 .7377 277.5 5.709L469.5 74.28C494.1 83.38 512 107.5 512 134.6V377.4C512 404.5 494.1 428.6 469.5 437.7L277.5 506.3C263.6 511.3 248.4 511.3 234.5 506.3L42.47 437.7C17 428.6 0 404.5 0 377.4V134.6C0 107.5 17 83.38 42.47 74.28L234.5 5.709zM256 65.98L82.34 128L256 190L429.7 128L256 65.98zM288 434.6L448 377.4V189.4L288 246.6V434.6z"></path></svg><div class="sl-flex-1 sl-items-center sl-text-base sl-truncate sl-mr-1.5 sl-ml-1.5">WebhookEvent</div><div class="sl-flex sl-items-center sl-text-xs"><div class="sl-flex sl-items-center"></div></div></div></a></div></div></div><a href="https://stoplight.io/?utm_source=elements&amp;utm_medium=uazapiGO%20-%20%20WhatsApp%20API%20(v2.0)&amp;utm_campaign=powered_by&amp;utm_content=/" target="_blank" rel="noopener noreferrer" class="sl-flex sl-items-center sl-px-4 sl-py-3 sl-border-t"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bolt" class="svg-inline--fa fa-bolt sl-icon fa-fw sl-mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" style="color: rgb(144, 97, 249);"><path fill="currentColor" d="M240.5 224H352C365.3 224 377.3 232.3 381.1 244.7C386.6 257.2 383.1 271.3 373.1 280.1L117.1 504.1C105.8 513.9 89.27 514.7 77.19 505.9C65.1 497.1 60.7 481.1 66.59 467.4L143.5 288H31.1C18.67 288 6.733 279.7 2.044 267.3C-2.645 254.8 .8944 240.7 10.93 231.9L266.9 7.918C278.2-1.92 294.7-2.669 306.8 6.114C318.9 14.9 323.3 30.87 317.4 44.61L240.5 224z"></path></svg><div>powered by&nbsp;<strong>Stoplight</strong></div></a></div><div class="sl-flex sl-flex-grow-0 sl-flex-shrink-0 sl-justify-self-end sl-resize-x" style="width: 1em; flex-basis: 6px; cursor: ew-resize;"></div></div><div class="sl-overflow-y-auto sl-flex-1 sl-w-full sl-px-24 sl-bg-canvas"><div class="sl-py-16" style="max-width: 1500px;"><div class="HttpService sl-mb-10"><div class="sl-flex sl-justify-between sl-items-center"><div class="sl-relative"><h1 class="sl-text-5xl sl-leading-tight sl-font-prose sl-font-semibold sl-mb-4 sl-text-heading">uazapiGO -  WhatsApp API (v2.0)</h1></div></div><div class="sl-relative sl-mb-5"><span class="sl-badge sl-max-w-full sl-h-xs sl-text-paragraph-tiny sl-whitespace-nowrap sl-px-1.5 sl-py-0.5 sl-bg-canvas-100 sl-text-paragraph sl-rounded-full sl-border-input sl-border-0" style="background-color: rgb(41, 55, 66); color: rgb(255, 255, 255);"><div class="sl-flex sl-justify-items-start sl-items-center sl-w-full"><div class="sl-flex sl-overflow-x-hidden sl-flex-shrink"><div class="sl-overflow-x-hidden sl-w-auto sl-truncate sl-whitespace-nowrap"><span>v1.0.0</span></div></div></div></span></div><div class="sl-stack sl-stack--vertical sl-stack--6 sl-flex sl-flex-col sl-items-stretch"><div data-test="servers" class="sl-panel sl-outline-none BaseURLContent sl-inverted sl-w-full sl-rounded-lg"><div class="sl-panel__titlebar sl-flex sl-items-center sl-relative focus:sl-z-10 sl-text-base sl-leading-none sl-whitespace-nowrap sl-pr-4 sl-pl-4 sl-bg-canvas-200 sl-text-body sl-border-input focus:sl-border-primary sl-select-none"><div class="sl-flex sl-flex-1 sl-items-center sl-h-lg">API Base URL</div></div><div class="sl-panel__content-wrapper sl-bg-canvas-100"><div class="sl-flex sl-flex-col sl-w-full sl-p-4"><div class="sl-stack sl-stack--vertical sl-stack--1 sl-flex sl-flex-col sl-items-stretch"><div data-test="server-row" class="sl-panel sl-outline-none ServerInfo sl-w-full"><div class="sl-panel__titlebar sl-flex sl-items-center sl-relative focus:sl-z-10 sl-text-base sl-leading-none sl-whitespace-nowrap sl-pr-4 sl-pl-4 sl-bg-canvas-200 sl-text-body sl-border-input focus:sl-border-primary sl-select-none"><div class="sl-flex sl-flex-1 sl-items-center sl-h-lg"><span class="sl-font-bold sl-pr-2 sl-pl-0">None:</span><span aria-label="None" class="sl-whitespace-normal sl-py-2" style="word-break: break-word;"></span></div></div><div class="sl-panel__content-wrapper sl-bg-canvas-100"></div></div><div class="sl-self-stretch sl-border-t"></div><div data-test="server-row" class="sl-panel sl-outline-none ServerInfo sl-w-full"><div class="sl-panel__titlebar sl-flex sl-items-center sl-relative focus:sl-z-10 sl-text-base sl-leading-none sl-whitespace-nowrap sl-pr-4 sl-pl-4 sl-bg-canvas-200 sl-text-body sl-border-input focus:sl-border-primary sl-select-none"><div class="sl-flex sl-flex-1 sl-items-center sl-h-lg"><span class="sl-font-bold sl-pr-2 sl-pl-0">Current Server:</span><span aria-label="Current Server" class="sl-whitespace-normal sl-py-2" style="word-break: break-word;"><span class="sl-font-normal">https://free.uazapi.com</span></span></div></div><div class="sl-panel__content-wrapper sl-bg-canvas-100"></div></div><div class="sl-self-stretch sl-border-t"></div><div data-test="server-row" class="sl-panel sl-outline-none ServerInfo sl-w-full"><div class="sl-panel__titlebar sl-flex sl-items-center sl-relative focus:sl-z-10 sl-text-base sl-leading-none sl-whitespace-nowrap sl-pr-4 sl-pl-4 sl-bg-canvas-200 sl-text-body sl-border-input focus:sl-border-primary sl-select-none"><div class="sl-flex sl-flex-1 sl-items-center sl-h-lg"><span class="sl-font-bold sl-pr-2 sl-pl-0">Free Test Server:</span><span aria-label="Free Test Server" class="sl-whitespace-normal sl-py-2" style="word-break: break-word;"><span class="sl-font-normal">https://free.uazapi.dev</span></span></div></div><div class="sl-panel__content-wrapper sl-bg-canvas-100"></div></div></div></div></div></div><div data-test="security"><div data-test="security-row" class="sl-panel sl-outline-none sl-w-full sl-rounded-lg"><div class="sl-panel__titlebar sl-flex sl-items-center sl-relative focus:sl-z-10 sl-text-base sl-leading-none sl-pr-4 sl-pl-4 sl-bg-canvas-300 sl-text-body sl-border-input focus:sl-border-primary sl-select-none"><div class="sl-flex sl-flex-1 sl-items-center sl-h-lg"><span role="heading">Security</span></div></div><div class="sl-panel__content-wrapper sl-bg-canvas-100"><div class="sl-panel__content sl-p-0"><div data-test="http-service-security-row"><div class="sl-panel sl-outline-none sl-relative sl-w-full"><div class="sl-panel__titlebar sl-flex sl-items-center sl-relative focus:sl-z-10 sl-text-base sl-leading-none sl-pr-4 sl-pl-4 sl-bg-canvas-200 sl-text-body sl-border-input focus:sl-border-primary sl-select-none"><div class="sl-flex sl-flex-1 sl-items-center sl-h-lg"><span role="heading">API Key</span></div></div><div class="sl-panel__content-wrapper sl-bg-canvas-100"><div class="sl-panel__content sl-p-4"><div><div class="sl-m-2 sl-p-2 sl-border"><div class="sl-prose sl-markdown-viewer " style="font-size: 12px;"><p>An API key is a token that you provide when making API calls. Include the token in a header parameter called <code class="sl-font-mono sl-font-medium sl-mx-0.5 sl-px-1 sl-py-0.5 sl-bg-code sl-text-on-code sl-rounded sl-border" style="font-size: 0.8125em;">token</code>.</p>
+<p>Example: <code class="sl-font-mono sl-font-medium sl-mx-0.5 sl-px-1 sl-py-0.5 sl-bg-code sl-text-on-code sl-rounded sl-border" style="font-size: 0.8125em;">token: 123</code></p></div></div></div></div></div></div></div></div></div></div></div><div data-test="additional-info"></div></div><div class="sl-relative"><div class="sl-prose sl-markdown-viewer sl-my-5"><p>API para gerenciamento de instâncias do WhatsApp e comunicações.</p>
+<h2 id="/#autenticação" class="sl-link-heading sl-text-4xl sl-leading-tight sl-font-prose sl-font-bold sl-text-heading"><a href="https://free.uazapi.com/docs/index.html#/#autentica%C3%A7%C3%A3o" class="sl-link sl-link-heading__link sl-inline-flex sl-items-center sl-text-current"><div>Autenticação</div><div class="sl-link-heading__icon sl-text-base sl-ml-4 sl-text-muted"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="link" class="svg-inline--fa fa-link sl-icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M172.5 131.1C228.1 75.51 320.5 75.51 376.1 131.1C426.1 181.1 433.5 260.8 392.4 318.3L391.3 319.9C381 334.2 361 337.6 346.7 327.3C332.3 317 328.9 297 339.2 282.7L340.3 281.1C363.2 249 359.6 205.1 331.7 177.2C300.3 145.8 249.2 145.8 217.7 177.2L105.5 289.5C73.99 320.1 73.99 372 105.5 403.5C133.3 431.4 177.3 435 209.3 412.1L210.9 410.1C225.3 400.7 245.3 404 255.5 418.4C265.8 432.8 262.5 452.8 248.1 463.1L246.5 464.2C188.1 505.3 110.2 498.7 60.21 448.8C3.741 392.3 3.741 300.7 60.21 244.3L172.5 131.1zM467.5 380C411 436.5 319.5 436.5 263 380C213 330 206.5 251.2 247.6 193.7L248.7 192.1C258.1 177.8 278.1 174.4 293.3 184.7C307.7 194.1 311.1 214.1 300.8 229.3L299.7 230.9C276.8 262.1 280.4 306.9 308.3 334.8C339.7 366.2 390.8 366.2 422.3 334.8L534.5 222.5C566 191 566 139.1 534.5 108.5C506.7 80.63 462.7 76.99 430.7 99.9L429.1 101C414.7 111.3 394.7 107.1 384.5 93.58C374.2 79.2 377.5 59.21 391.9 48.94L393.5 47.82C451 6.731 529.8 13.25 579.8 63.24C636.3 119.7 636.3 211.3 579.8 267.7L467.5 380z"></path></svg></div></a></h2>
+<ul>
+<li>Endpoints regulares requerem um header 'token' com o token da instância</li>
+<li>Endpoints administrativos requerem um header 'admintoken'</li>
+</ul>
+<h2 id="/#estados-da-instância" class="sl-link-heading sl-text-4xl sl-leading-tight sl-font-prose sl-font-bold sl-text-heading"><a href="https://free.uazapi.com/docs/index.html#/#estados-da-inst%C3%A2ncia" class="sl-link sl-link-heading__link sl-inline-flex sl-items-center sl-text-current"><div>Estados da Instância</div><div class="sl-link-heading__icon sl-text-base sl-ml-4 sl-text-muted"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="link" class="svg-inline--fa fa-link sl-icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M172.5 131.1C228.1 75.51 320.5 75.51 376.1 131.1C426.1 181.1 433.5 260.8 392.4 318.3L391.3 319.9C381 334.2 361 337.6 346.7 327.3C332.3 317 328.9 297 339.2 282.7L340.3 281.1C363.2 249 359.6 205.1 331.7 177.2C300.3 145.8 249.2 145.8 217.7 177.2L105.5 289.5C73.99 320.1 73.99 372 105.5 403.5C133.3 431.4 177.3 435 209.3 412.1L210.9 410.1C225.3 400.7 245.3 404 255.5 418.4C265.8 432.8 262.5 452.8 248.1 463.1L246.5 464.2C188.1 505.3 110.2 498.7 60.21 448.8C3.741 392.3 3.741 300.7 60.21 244.3L172.5 131.1zM467.5 380C411 436.5 319.5 436.5 263 380C213 330 206.5 251.2 247.6 193.7L248.7 192.1C258.1 177.8 278.1 174.4 293.3 184.7C307.7 194.1 311.1 214.1 300.8 229.3L299.7 230.9C276.8 262.1 280.4 306.9 308.3 334.8C339.7 366.2 390.8 366.2 422.3 334.8L534.5 222.5C566 191 566 139.1 534.5 108.5C506.7 80.63 462.7 76.99 430.7 99.9L429.1 101C414.7 111.3 394.7 107.1 384.5 93.58C374.2 79.2 377.5 59.21 391.9 48.94L393.5 47.82C451 6.731 529.8 13.25 579.8 63.24C636.3 119.7 636.3 211.3 579.8 267.7L467.5 380z"></path></svg></div></a></h2>
+<p>As instâncias podem estar nos seguintes estados:</p>
+<ul>
+<li><code class="sl-font-mono sl-font-medium sl-mx-0.5 sl-px-1 sl-py-0.5 sl-bg-code sl-text-on-code sl-rounded sl-border" style="font-size: 0.8125em;">disconnected</code>: Desconectado do WhatsApp</li>
+<li><code class="sl-font-mono sl-font-medium sl-mx-0.5 sl-px-1 sl-py-0.5 sl-bg-code sl-text-on-code sl-rounded sl-border" style="font-size: 0.8125em;">connecting</code>: Em processo de conexão</li>
+<li><code class="sl-font-mono sl-font-medium sl-mx-0.5 sl-px-1 sl-py-0.5 sl-bg-code sl-text-on-code sl-rounded sl-border" style="font-size: 0.8125em;">connected</code>: Conectado e autenticado com sucesso</li>
+</ul>
+<h2 id="/#limites-de-uso" class="sl-link-heading sl-text-4xl sl-leading-tight sl-font-prose sl-font-bold sl-text-heading"><a href="https://free.uazapi.com/docs/index.html#/#limites-de-uso" class="sl-link sl-link-heading__link sl-inline-flex sl-items-center sl-text-current"><div>Limites de Uso</div><div class="sl-link-heading__icon sl-text-base sl-ml-4 sl-text-muted"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="link" class="svg-inline--fa fa-link sl-icon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M172.5 131.1C228.1 75.51 320.5 75.51 376.1 131.1C426.1 181.1 433.5 260.8 392.4 318.3L391.3 319.9C381 334.2 361 337.6 346.7 327.3C332.3 317 328.9 297 339.2 282.7L340.3 281.1C363.2 249 359.6 205.1 331.7 177.2C300.3 145.8 249.2 145.8 217.7 177.2L105.5 289.5C73.99 320.1 73.99 372 105.5 403.5C133.3 431.4 177.3 435 209.3 412.1L210.9 410.1C225.3 400.7 245.3 404 255.5 418.4C265.8 432.8 262.5 452.8 248.1 463.1L246.5 464.2C188.1 505.3 110.2 498.7 60.21 448.8C3.741 392.3 3.741 300.7 60.21 244.3L172.5 131.1zM467.5 380C411 436.5 319.5 436.5 263 380C213 330 206.5 251.2 247.6 193.7L248.7 192.1C258.1 177.8 278.1 174.4 293.3 184.7C307.7 194.1 311.1 214.1 300.8 229.3L299.7 230.9C276.8 262.1 280.4 306.9 308.3 334.8C339.7 366.2 390.8 366.2 422.3 334.8L534.5 222.5C566 191 566 139.1 534.5 108.5C506.7 80.63 462.7 76.99 430.7 99.9L429.1 101C414.7 111.3 394.7 107.1 384.5 93.58C374.2 79.2 377.5 59.21 391.9 48.94L393.5 47.82C451 6.731 529.8 13.25 579.8 63.24C636.3 119.7 636.3 211.3 579.8 267.7L467.5 380z"></path></svg></div></a></h2>
+<ul>
+<li>O servidor possui um limite máximo de instâncias conectadas</li>
+<li>Quando o limite é atingido, novas tentativas receberão erro 429</li>
+<li>Servidores gratuitos/demo podem ter restrições adicionais de tempo de vida</li>
+</ul></div></div></div></div></div></div></div></div></div></div>
+    
+    <script>
+        // Theme control
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const isDark = htmlEl.getAttribute('data-theme') === 'dark';
+            htmlEl.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+        // Existing server config code...
+        async function getServerConfig() {
+            try {
+                const response = await fetch('/server/config');
+                const config = await response.json();
+                return config.baseURL || window.location.origin;
+            } catch (error) {
+                console.warn('Could not fetch server config, using default baseURL');
+                return window.location.origin;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const element = document.querySelector('elements-api');
+            if (element) {
+                try {
+                    const customBaseUrl = await getServerConfig();
+                    const response = await fetch('/docs/openapi.yaml');
+                    let yamlContent = await response.text();
+                    
+                    const serverSection = `
+servers:
+  - url: ''
+    description: None
+  - url: '${customBaseUrl}'
+    description: Current Server
+  - url: 'https://free.uazapi.dev'
+    description: Free Test Server`;
+                    
+                    if (yamlContent.includes('servers:')) {
+                        yamlContent = yamlContent.replace(/servers:[\s\S]*?(?=\n\w|$)/, serverSection);
+                    } else {
+                        yamlContent = serverSection + '\n' + yamlContent;
+                    }
+
+                    element.apiDescriptionDocument = yamlContent;
+                } catch (error) {
+                    console.error('Error initializing API documentation:', error);
+                }
+            }
+        });
+    </script>
+
+
+</elements-api></body></html>
