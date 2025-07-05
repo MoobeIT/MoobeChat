@@ -1,101 +1,87 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { redirect } from 'next/navigation'
 
-// Dados mockados para demonstração
-const initialColumns = {
-  'novo': {
-    id: 'novo',
-    title: 'Novas Conversas',
-    color: 'bg-blue-500',
-    tasks: [
-      {
-        id: '1',
-        customerName: 'Ana Santos',
-        platform: 'WhatsApp',
-        lastMessage: 'Olá, gostaria de saber sobre seus produtos',
-        messageCount: 1,
-        priority: 'medium',
-        createdAt: new Date('2024-01-15T10:30:00'),
-      },
-      {
-        id: '2',
-        customerName: 'Carlos Silva',
-        platform: 'Instagram',
-        lastMessage: 'Vi sua página no Instagram, muito interessante!',
-        messageCount: 3,
-        priority: 'low',
-        createdAt: new Date('2024-01-15T09:15:00'),
-      }
-    ]
-  },
-  'em-andamento': {
-    id: 'em-andamento',
-    title: 'Em Andamento',
-    color: 'bg-yellow-500',
-    tasks: [
-      {
-        id: '3',
-        customerName: 'Maria Oliveira',
-        platform: 'WhatsApp',
-        lastMessage: 'Perfeito! Quando posso fazer o pedido?',
-        messageCount: 8,
-        priority: 'high',
-        createdAt: new Date('2024-01-15T08:45:00'),
-      }
-    ]
-  },
-  'aguardando': {
-    id: 'aguardando',
-    title: 'Aguardando Cliente',
-    color: 'bg-orange-500',
-    tasks: [
-      {
-        id: '4',
-        customerName: 'João Pereira',
-        platform: 'Instagram',
-        lastMessage: 'Enviamos as informações por email',
-        messageCount: 5,
-        priority: 'medium',
-        createdAt: new Date('2024-01-14T16:20:00'),
-      }
-    ]
-  },
-  'resolvido': {
-    id: 'resolvido',
-    title: 'Resolvidas',
-    color: 'bg-green-500',
-    tasks: [
-      {
-        id: '5',
-        customerName: 'Lucas Costa',
-        platform: 'WhatsApp',
-        lastMessage: 'Muito obrigado pelo atendimento!',
-        messageCount: 12,
-        priority: 'low',
-        createdAt: new Date('2024-01-14T14:30:00'),
-      }
-    ]
+interface Conversation {
+  id: string
+  customerName: string
+  customerPhone: string
+  platform: {
+    type: string
+    name: string
   }
+  lastMessage?: {
+    content: string
+    createdAt: string
+  }
+  status: string
+  messageCount: number
+  priority: string
+  createdAt: string
+}
+
+interface KanbanColumn {
+  id: string
+  title: string
+  color: string
+  tasks: Conversation[]
 }
 
 const priorityColors = {
-  low: 'bg-gray-100 text-gray-800',
-  medium: 'bg-blue-100 text-blue-800',
-  high: 'bg-red-100 text-red-800',
-  urgent: 'bg-purple-100 text-purple-800'
+  LOW: 'bg-gray-100 text-gray-800',
+  MEDIUM: 'bg-blue-100 text-blue-800',
+  HIGH: 'bg-red-100 text-red-800',
+  URGENT: 'bg-purple-100 text-purple-800'
 }
 
 const platformColors = {
-  WhatsApp: 'bg-green-100 text-green-800',
-  Instagram: 'bg-pink-100 text-pink-800',
-  Facebook: 'bg-blue-100 text-blue-800'
+  WHATSAPP: 'bg-green-100 text-green-800',
+  INSTAGRAM: 'bg-pink-100 text-pink-800',
+  FACEBOOK: 'bg-blue-100 text-blue-800'
+}
+
+const statusMapping = {
+  'OPEN': 'novo',
+  'IN_PROGRESS': 'em-andamento',
+  'WAITING_CUSTOMER': 'aguardando',
+  'RESOLVED': 'resolvido'
 }
 
 export default function KanbanPage() {
-  const [columns, setColumns] = useState(initialColumns)
+  const { data: session, status } = useSession()
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const formatTime = (date: Date) => {
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      redirect('/auth/signin')
+    }
+  }, [status])
+
+  useEffect(() => {
+    if (session) {
+      fetchConversations()
+    }
+  }, [session])
+
+  const fetchConversations = async () => {
+    try {
+      const response = await fetch('/api/conversations')
+      if (response.ok) {
+        const data = await response.json()
+        setConversations(data.conversations || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar conversas:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString)
     const now = new Date()
     const diff = now.getTime() - date.getTime()
     const hours = Math.floor(diff / (1000 * 60 * 60))
@@ -111,29 +97,78 @@ export default function KanbanPage() {
     }
   }
 
-  const moveCard = (taskId: string, fromColumn: string, toColumn: string) => {
-    // Função simples para mover cards entre colunas (sem drag & drop)
-    const sourceColumn = columns[fromColumn as keyof typeof columns]
-    const targetColumn = columns[toColumn as keyof typeof columns]
-    
-    const taskToMove = sourceColumn.tasks.find(task => task.id === taskId)
-    if (!taskToMove) return
+  const moveCard = async (conversationId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
 
-    const newSourceTasks = sourceColumn.tasks.filter(task => task.id !== taskId)
-    const newTargetTasks = [...targetColumn.tasks, taskToMove]
-
-    setColumns({
-      ...columns,
-      [fromColumn]: {
-        ...sourceColumn,
-        tasks: newSourceTasks
-      },
-      [toColumn]: {
-        ...targetColumn,
-        tasks: newTargetTasks
+      if (response.ok) {
+        fetchConversations() // Recarregar dados
       }
-    })
+    } catch (error) {
+      console.error('Erro ao mover card:', error)
+    }
   }
+
+  const getColumns = (): KanbanColumn[] => {
+    const columns: KanbanColumn[] = [
+      {
+        id: 'novo',
+        title: 'Novas Conversas',
+        color: 'bg-blue-500',
+        tasks: conversations.filter(c => c.status === 'OPEN')
+      },
+      {
+        id: 'em-andamento',
+        title: 'Em Andamento',
+        color: 'bg-yellow-500',
+        tasks: conversations.filter(c => c.status === 'IN_PROGRESS')
+      },
+      {
+        id: 'aguardando',
+        title: 'Aguardando Cliente',
+        color: 'bg-orange-500',
+        tasks: conversations.filter(c => c.status === 'WAITING_CUSTOMER')
+      },
+      {
+        id: 'resolvido',
+        title: 'Resolvidas',
+        color: 'bg-green-500',
+        tasks: conversations.filter(c => c.status === 'RESOLVED')
+      }
+    ]
+
+    return columns
+  }
+
+  const getStatusFromColumnId = (columnId: string): string => {
+    const mapping: { [key: string]: string } = {
+      'novo': 'OPEN',
+      'em-andamento': 'IN_PROGRESS',
+      'aguardando': 'WAITING_CUSTOMER',
+      'resolvido': 'RESOLVED'
+    }
+    return mapping[columnId] || 'OPEN'
+  }
+
+  if (status === 'loading' || loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-lg">Carregando kanban...</div>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return null
+  }
+
+  const columns = getColumns()
 
   return (
     <div className="p-6 h-full">
@@ -142,13 +177,18 @@ export default function KanbanPage() {
           <h1 className="text-3xl font-bold text-gray-900">Kanban de Conversas</h1>
           <p className="text-gray-600">Organize suas conversas por estágio</p>
         </div>
-        <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-          ➕ Nova Coluna
-        </button>
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={fetchConversations}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+          >
+            🔄 Atualizar
+          </button>
+        </div>
       </div>
 
       <div className="flex space-x-6 h-full overflow-x-auto">
-        {Object.values(columns).map((column) => (
+        {columns.map((column) => (
           <div key={column.id} className="flex-shrink-0 w-80">
             <div className="bg-white rounded-lg border shadow-sm h-full">
               <div className="p-4 border-b">
@@ -165,67 +205,74 @@ export default function KanbanPage() {
               
               <div className="p-4">
                 <div className="space-y-3 min-h-[200px]">
-                  {column.tasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                    >
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
-                              {task.customerName.split(' ').map(n => n[0]).join('')}
+                  {column.tasks.length > 0 ? (
+                    column.tasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                                {task.customerName.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                              </div>
+                              <span className="font-medium text-sm">{task.customerName}</span>
                             </div>
-                            <span className="font-medium text-sm">{task.customerName}</span>
+                            <span className={`px-2 py-1 text-xs rounded-md ${platformColors[task.platform.type as keyof typeof platformColors] || 'bg-gray-100 text-gray-800'}`}>
+                              {task.platform.name}
+                            </span>
                           </div>
-                          <span className={`px-2 py-1 text-xs rounded-md ${platformColors[task.platform as keyof typeof platformColors]}`}>
-                            {task.platform}
-                          </span>
-                        </div>
-                        
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {task.lastMessage}
-                        </p>
-                        
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <div className="flex items-center space-x-2">
-                            <span>💬</span>
-                            <span>{task.messageCount}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span>🕒</span>
-                            <span>{formatTime(task.createdAt)}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className={`px-2 py-1 text-xs rounded-md ${priorityColors[task.priority as keyof typeof priorityColors]}`}>
-                            {task.priority === 'low' && 'Baixa'}
-                            {task.priority === 'medium' && 'Média'}
-                            {task.priority === 'high' && 'Alta'}
-                            {task.priority === 'urgent' && 'Urgente'}
-                          </span>
                           
-                          {/* Botões para mover entre colunas */}
-                          <div className="flex space-x-1">
-                            {Object.keys(columns).map((columnId) => {
-                              if (columnId === column.id) return null
-                              return (
-                                <button
-                                  key={columnId}
-                                  onClick={() => moveCard(task.id, column.id, columnId)}
-                                  className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded text-gray-600"
-                                  title={`Mover para ${columns[columnId as keyof typeof columns].title}`}
-                                >
-                                  →
-                                </button>
-                              )
-                            })}
+                          <p className="text-sm text-gray-600 line-clamp-2">
+                            {task.lastMessage?.content || 'Sem mensagens'}
+                          </p>
+                          
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <div className="flex items-center space-x-2">
+                              <span>💬</span>
+                              <span>{task.messageCount}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span>🕒</span>
+                              <span>{formatTime(task.createdAt)}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <span className={`px-2 py-1 text-xs rounded-md ${priorityColors[task.priority as keyof typeof priorityColors] || 'bg-gray-100 text-gray-800'}`}>
+                              {task.priority === 'LOW' && 'Baixa'}
+                              {task.priority === 'MEDIUM' && 'Média'}
+                              {task.priority === 'HIGH' && 'Alta'}
+                              {task.priority === 'URGENT' && 'Urgente'}
+                            </span>
+                            
+                            {/* Botões para mover entre colunas */}
+                            <div className="flex space-x-1">
+                              {columns.map((targetColumn) => {
+                                if (targetColumn.id === column.id) return null
+                                return (
+                                  <button
+                                    key={targetColumn.id}
+                                    onClick={() => moveCard(task.id, getStatusFromColumnId(targetColumn.id))}
+                                    className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded text-gray-600"
+                                    title={`Mover para ${targetColumn.title}`}
+                                  >
+                                    →
+                                  </button>
+                                )
+                              })}
+                            </div>
                           </div>
                         </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">
+                      <p>Nenhuma conversa</p>
+                      <p className="text-sm mt-2">Cards aparecerão aqui conforme o status</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
@@ -240,7 +287,7 @@ export default function KanbanPage() {
           <li>• Use os botões → nos cards para mover conversas entre colunas</li>
           <li>• Organize suas conversas por estágio de atendimento</li>
           <li>• Monitore prioridades através das cores dos badges</li>
-          <li>• Versão com drag & drop será implementada em breve!</li>
+          <li>• Os dados são atualizados automaticamente do banco</li>
         </ul>
       </div>
     </div>

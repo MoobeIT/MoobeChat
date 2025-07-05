@@ -7,7 +7,7 @@ export default function LandingPage() {
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <span className="text-2xl">💬</span>
-          <span className="text-2xl font-bold text-gray-900">Moobi Chat</span>
+                      <span className="text-2xl font-bold text-gray-900">Moobe Chat</span>
         </div>
         <div className="space-x-4">
           <Link href="/dashboard">
@@ -86,7 +86,7 @@ export default function LandingPage() {
             Pronto para revolucionar seu atendimento?
           </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Junte-se a milhares de empresas que já usam o Moobi Chat para 
+            Junte-se a milhares de empresas que já usam o Moobe Chat para 
             gerenciar suas comunicações
           </p>
           <Link href="/dashboard">
@@ -102,10 +102,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <span className="text-2xl">💬</span>
-            <span className="text-xl font-bold">Moobi Chat</span>
+            <span className="text-xl font-bold">Moobe Chat</span>
           </div>
           <p className="text-gray-400">
-            © 2024 Moobi Chat. Todos os direitos reservados.
+            © 2024 Moobe Chat. Todos os direitos reservados.
           </p>
         </div>
       </footer>

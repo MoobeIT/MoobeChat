@@ -8,7 +8,7 @@ Agora o Moobi Chat possui um sistema completo de usuários com banco de dados re
 
 ### Acesse a página de registro:
 ```
-http://localhost:3001/auth/register
+http://localhost:3000/auth/register
 ```
 
 ### Preencha os dados:
@@ -27,7 +27,7 @@ http://localhost:3001/auth/register
 
 ### Acesse a página de login:
 ```
-http://localhost:3001/auth/signin
+http://localhost:3000/auth/signin
 ```
 
 ### Opções de login:
@@ -45,7 +45,7 @@ http://localhost:3001/auth/signin
 
 ### Página de administração:
 ```
-http://localhost:3001/admin/users
+http://localhost:3000/admin/users
 ```
 
 ### Funcionalidades:

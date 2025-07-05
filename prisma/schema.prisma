@@ -13,7 +13,7 @@ datasource db {
 
 // Modelo de Usuário (Multi-tenant)
 model User {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String   @id @default(cuid())
   email     String   @unique
   name      String?
   image     String?
@@ -30,8 +30,8 @@ model User {
 }
 
 model Account {
-  id                String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  userId            String  @map("user_id") @db.Uuid
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
@@ -52,9 +52,9 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id           String   @id @default(cuid())
   sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id") @db.Uuid
+  userId       String   @map("user_id")
   expires      DateTime
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -76,7 +76,7 @@ model VerificationToken {
 
 // Workspace (Multi-tenant)
 model Workspace {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String   @id @default(cuid())
   name        String
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
@@ -92,9 +92,9 @@ model Workspace {
 }
 
 model WorkspaceUser {
-  id          String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  userId      String        @map("user_id") @db.Uuid
-  workspaceId String        @map("workspace_id") @db.Uuid
+  id          String        @id @default(cuid())
+  userId      String        @map("user_id")
+  workspaceId String        @map("workspace_id")
   role        WorkspaceRole @default(MEMBER)
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
@@ -108,8 +108,8 @@ model WorkspaceUser {
 
 // Plataformas de Comunicação
 model Platform {
-  id          String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  workspaceId String       @map("workspace_id") @db.Uuid
+  id          String       @id @default(cuid())
+  workspaceId String       @map("workspace_id")
   type        PlatformType
   name        String
   config      Json @default("{}")
@@ -125,16 +125,16 @@ model Platform {
 
 // Conversas
 model Conversation {
-  id            String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  workspaceId   String             @map("workspace_id") @db.Uuid
-  platformId    String             @map("platform_id") @db.Uuid
+  id            String             @id @default(cuid())
+  workspaceId   String             @map("workspace_id")
+  platformId    String             @map("platform_id")
   externalId    String             @map("external_id")
   customerName  String?            @map("customer_name")
   customerPhone String?            @map("customer_phone")
   customerEmail String?            @map("customer_email")
   status        ConversationStatus @default(OPEN)
   priority      Priority           @default(MEDIUM)
-  assignedTo    String?            @map("assigned_to") @db.Uuid
+  assignedTo    String?            @map("assigned_to")
   tags          String[]           @default([])
   createdAt     DateTime           @default(now()) @map("created_at")
   updatedAt     DateTime           @updatedAt @map("updated_at")
@@ -151,8 +151,8 @@ model Conversation {
 
 // Mensagens
 model Message {
-  id             String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  conversationId String      @map("conversation_id") @db.Uuid
+  id             String      @id @default(cuid())
+  conversationId String      @map("conversation_id")
   externalId     String?     @map("external_id")
   content        String
   messageType    MessageType @default(TEXT) @map("message_type")
@@ -169,8 +169,8 @@ model Message {
 
 // Sistema Kanban
 model KanbanBoard {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  workspaceId String   @map("workspace_id") @db.Uuid
+  id          String   @id @default(cuid())
+  workspaceId String   @map("workspace_id")
   name        String
   description String?
   isDefault   Boolean  @default(false) @map("is_default")
@@ -184,8 +184,8 @@ model KanbanBoard {
 }
 
 model KanbanColumn {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  boardId   String   @map("board_id") @db.Uuid
+  id        String   @id @default(cuid())
+  boardId   String   @map("board_id")
   name      String
   color     String?
   position  Int
@@ -199,9 +199,9 @@ model KanbanColumn {
 }
 
 model KanbanCard {
-  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  columnId       String   @map("column_id") @db.Uuid
-  conversationId String   @unique @map("conversation_id") @db.Uuid
+  id             String   @id @default(cuid())
+  columnId       String   @map("column_id")
+  conversationId String   @unique @map("conversation_id")
   position       Int
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")

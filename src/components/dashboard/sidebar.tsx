@@ -34,10 +34,10 @@ export function DashboardSidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-screen w-64 flex-col bg-gray-900">
+    <div className="flex h-screen w-64 flex-col bg-gray-900 dark:bg-gray-950">
       <div className="flex h-16 shrink-0 items-center px-6">
         <MessageSquare className="h-8 w-8 text-white" />
-        <span className="ml-2 text-xl font-bold text-white">Moobi Chat</span>
+        <span className="ml-2 text-xl font-bold text-white">Moobe Chat</span>
       </div>
       <nav className="flex-1 space-y-1 px-2 py-4">
         {navigation.map((item) => {
@@ -66,7 +66,7 @@ export function DashboardSidebar() {
       </nav>
       
       {/* Bottom navigation */}
-      <div className="space-y-1 px-2 py-4 border-t border-gray-800">
+      <div className="space-y-1 px-2 py-4 border-t border-gray-800 dark:border-gray-700">
         {bottomNavigation.map((item) => {
           const isActive = pathname === item.href
           return (

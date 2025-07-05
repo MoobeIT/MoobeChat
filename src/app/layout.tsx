@@ -2,7 +2,7 @@ import './globals.css'
 import { Providers } from '@/components/providers'
 
 export const metadata = {
-  title: 'Moobi Chat - Central de Comunicação',
+  title: 'Moobe Chat - Central de Comunicação',
   description: 'Plataforma SAAS para gerenciamento de conversas em múltiplas plataformas',
 }
 

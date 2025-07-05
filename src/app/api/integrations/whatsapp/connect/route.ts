@@ -36,82 +36,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Plataforma não encontrada' }, { status: 404 })
     }
 
-    let result: any = {}
-    
     // Verificar se já existe token da instância no config
     const config = platform.config as any
-    const existingToken = config?.instanceToken
+    const instanceToken = config?.instanceToken
+    const instanceName = config?.instanceName
 
-    if (existingToken) {
-      // Se já tem token, apenas tentar conectar
-      try {
-        const connectResult = await uazApiClient.connectInstance(existingToken)
-        result = {
-          qrcode: connectResult.qrcode,
-          status: connectResult.status || 'connecting',
-          instanceToken: existingToken
-        }
-      } catch (error) {
-        // Se falhou, criar nova instância
-        const instanceName = `moobi_${platform.id.slice(0, 8)}`
-        const initResult = await uazApiClient.initInstance(instanceName)
-        
-        if (initResult.token) {
-          // Salvar o token da instância
-          await prisma.platform.update({
-            where: { id: platformId },
-            data: {
-              config: {
-                ...(platform.config as object),
-                instanceToken: initResult.token,
-                instanceName
-              }
-            }
-          })
-          
-          // Tentar conectar com o novo token
-          const connectResult = await uazApiClient.connectInstance(initResult.token)
-          result = {
-            qrcode: connectResult.qrcode,
-            status: connectResult.status || 'connecting',
-            instanceToken: initResult.token
-          }
-        }
-      }
-    } else {
-      // Primeira vez - inicializar instância
-      const instanceName = `moobi_${platform.id.slice(0, 8)}_${Date.now()}`
-      const webhookUrl = `${process.env.WEBHOOK_URL}/api/webhooks/uazapi`
-      
-      // Inicializar instância
-      const initResult = await uazApiClient.initInstance(instanceName, webhookUrl)
-      
-      if (!initResult.token) {
-        return NextResponse.json({ error: 'Falha ao obter token da instância' }, { status: 500 })
-      }
+    if (!instanceToken) {
+      return NextResponse.json({ 
+        error: 'Instância não foi inicializada corretamente. Tente criar uma nova instância.' 
+      }, { status: 400 })
+    }
 
-      // Salvar o token da instância
-      await prisma.platform.update({
-        where: { id: platformId },
-        data: {
-          config: {
-            ...(platform.config as object),
-            instanceToken: initResult.token,
-            instanceName,
-            webhookUrl
-          }
-        }
-      })
-
-      // Conectar para obter QR Code
-      const connectResult = await uazApiClient.connectInstance(initResult.token)
-      
-      result = {
-        qrcode: connectResult.qrcode,
-        status: connectResult.status || 'connecting',
-        instanceToken: initResult.token,
-        instanceName
-      }
+    // Conectar para obter QR Code
+    const connectResult = await uazApiClient.connectInstance(instanceToken)
+    
+    const result = {
+      qrcode: connectResult.qrcode,
+      status: connectResult.status || 'connecting',
+      instanceToken: instanceToken,
+      instanceName
     }
 
     return NextResponse.json({
@@ -146,15 +89,20 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const status = await uazApiClient.getInstanceStatus(instanceToken)
+      console.log(`🔍 Verificando status para token: ${instanceToken}`)
+      
+      const statusResult = await uazApiClient.getInstanceStatus(instanceToken)
+      console.log(`📊 Status obtido:`, statusResult)
       
       // Verificar se está conectada
       const isConnected = await uazApiClient.isInstanceConnected(instanceToken)
+      console.log(`🔗 Está conectada: ${isConnected}`)
       
       return NextResponse.json({ 
         success: true,
-        status,
-        isConnected
+        status: statusResult.status,
+        isConnected,
+        instanceId: statusResult.instanceId
       })
 
     } catch (uazError: any) {

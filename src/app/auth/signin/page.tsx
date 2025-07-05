@@ -56,7 +56,7 @@ export default function SignInPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <span className="text-3xl">💬</span>
-            <span className="text-2xl font-bold text-gray-900">Moobi Chat</span>
+            <span className="text-2xl font-bold text-gray-900">Moobe Chat</span>
           </div>
           <p className="text-gray-600">Faça login para acessar sua central</p>
         </div>

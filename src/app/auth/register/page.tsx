@@ -85,7 +85,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Moobi Chat</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">Moobe Chat</h1>
           <h2 className="mt-2 text-xl font-semibold text-gray-700">Criar Conta</h2>
           <p className="mt-2 text-sm text-gray-600">
             Crie sua conta para começar a usar o sistema

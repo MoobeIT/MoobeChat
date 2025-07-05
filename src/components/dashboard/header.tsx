@@ -1,37 +1,132 @@
 'use client'
 
-import { Bell, Search, User } from 'lucide-react'
+import { Bell, Search, User, LogOut, Settings, Moon, Sun } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useSession, signOut } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 
 export function DashboardHeader() {
+  const { data: session } = useSession()
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const [darkMode, setDarkMode] = useState(false)
+
+  // Verificar se há preferência salva no localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      setDarkMode(true)
+      document.documentElement.classList.add('dark')
+    } else {
+      setDarkMode(false)
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode
+    setDarkMode(newDarkMode)
+    
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
+    }
+  }
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' })
+  }
+
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-6">
+    <header className="flex h-16 items-center justify-between border-b bg-white dark:bg-gray-900 dark:border-gray-700 px-6">
       <div className="flex items-center space-x-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar conversas..."
-            className="w-96 rounded-md border border-gray-300 pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+        {/* Logo e Nome do Software */}
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">M</span>
+          </div>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+            Moobe Chat
+          </h1>
         </div>
       </div>
       
       <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="icon">
+        {/* Toggle Dark Mode */}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={toggleDarkMode}
+          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+        >
+          {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
+
+        {/* Notificações */}
+        <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
           <Bell className="h-5 w-5" />
         </Button>
         
-        <div className="flex items-center space-x-3">
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">João Silva</p>
-            <p className="text-xs text-gray-500">Admin</p>
+        {/* Menu do Usuário */}
+        <div className="relative">
+          <div className="flex items-center space-x-3">
+            <div className="text-right">
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {session?.user?.name || session?.user?.email || 'Usuário'}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {session?.user?.email ? 'Usuário' : 'Carregando...'}
+              </p>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              onClick={() => setShowUserMenu(!showUserMenu)}
+            >
+              <User className="h-5 w-5" />
+            </Button>
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <User className="h-5 w-5" />
-          </Button>
+          
+          {/* Menu dropdown */}
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+              <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+                <div className="font-medium">{session?.user?.name || 'Usuário'}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{session?.user?.email}</div>
+              </div>
+              
+              <button
+                onClick={() => setShowUserMenu(false)}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Configurações
+              </button>
+              
+              <button
+                onClick={handleLogout}
+                className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sair
+              </button>
+            </div>
+          )}
         </div>
       </div>
+      
+      {/* Overlay para fechar menu */}
+      {showUserMenu && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowUserMenu(false)}
+        />
+      )}
     </header>
   )
 } 
