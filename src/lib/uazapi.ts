@@ -106,6 +106,7 @@ export class UazApiClient {
     
     try {
       console.log(`🚀 Inicializando instância UazAPI: ${instanceName}`)
+      console.log(`🔑 Usando admin token: ${UAZAPI_TOKEN ? `${UAZAPI_TOKEN.slice(0, 10)}...` : 'NÃO CONFIGURADO'}`)
       
       const response = await uazApi.post('/instance/init', {
         name: instanceName
@@ -117,10 +118,28 @@ export class UazApiClient {
       
       console.log('✅ Instância inicializada:', response.data)
       
+      // Verificar se recebeu token
+      if (!response.data.token) {
+        throw new Error('Token não recebido do UazAPI')
+      }
+      
+      // Aguardar um pouco para garantir que a instância foi criada
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Verificar se a instância foi realmente criada
+      try {
+        const status = await this.getInstanceStatus(response.data.token)
+        console.log(`🔍 Status da instância criada: ${status.status}`)
+      } catch (statusError) {
+        console.warn('⚠️ Erro ao verificar status da instância criada:', statusError)
+        // Continuar mesmo com erro de status
+      }
+      
       // Configurar webhook se fornecido
       if (webhook && response.data.token) {
         try {
           await this.setWebhook(response.data.token, webhook)
+          console.log(`🔗 Webhook configurado: ${webhook}`)
         } catch (webhookError) {
           console.warn('⚠️ Erro ao configurar webhook:', webhookError)
         }
@@ -135,7 +154,17 @@ export class UazApiClient {
     } catch (error) {
       console.error('❌ Erro ao inicializar instância UazAPI:', error)
       if (error instanceof AxiosError) {
-        throw new Error(`Erro UazAPI: ${error.response?.data?.message || error.message}`)
+        console.error('📋 Detalhes do erro UazAPI:')
+        console.error('  - Status:', error.response?.status)
+        console.error('  - Data:', error.response?.data)
+        console.error('  - Headers:', error.response?.headers)
+        
+        const errorMessage = error.response?.data?.message || 
+                           error.response?.data?.error || 
+                           error.message || 
+                           'Erro desconhecido'
+        
+        throw new Error(`Erro UazAPI: ${errorMessage}`)
       }
       throw error
     }
@@ -146,46 +175,105 @@ export class UazApiClient {
     try {
       console.log('🔗 Conectando instância UazAPI...')
       
-      const response = await uazApi.post('/instance/connect', {}, {
-        headers: {
-          'token': instanceToken
+      // Configurações de retry mais robustas
+      const maxRetries = 5
+      const baseDelay = 3000 // 3 segundos
+      
+      // Primeiro, verificar se a instância está pronta
+      console.log('🔍 Verificando se a instância está pronta antes da conexão...')
+      try {
+        const statusCheck = await this.getInstanceStatus(instanceToken)
+        console.log(`📊 Status atual da instância: ${statusCheck.status}`)
+        
+        // Se ainda está inicializando, aguardar mais
+        if (statusCheck.status === 'error' || !statusCheck.status) {
+          console.log('⏳ Instância ainda não está pronta, aguardando...')
+          await new Promise(resolve => setTimeout(resolve, 5000))
         }
-      })
-      
-      console.log('✅ Resposta de conexão:', response.data)
-      
-      return {
-        qrcode: response.data.qrcode,
-        status: response.data.status || 'connecting'
+      } catch (statusError) {
+        console.warn('⚠️ Erro ao verificar status inicial, tentando conectar mesmo assim:', statusError)
       }
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`🔄 Tentativa ${attempt}/${maxRetries} de conexão...`)
+          
+          const response = await uazApi.post('/instance/connect', {}, {
+            headers: {
+              'token': instanceToken
+            }
+          })
+          
+          console.log(`✅ Conexão bem-sucedida na tentativa ${attempt}:`, response.data)
+          
+          return {
+            qrcode: response.data.qrcode,
+            status: response.data.status || 'connecting'
+          }
+          
+        } catch (attemptError) {
+          console.log(`⚠️ Tentativa ${attempt}/${maxRetries} falhou`)
+          
+          if (attemptError instanceof AxiosError) {
+            // Status 409 significa que já está conectando - verificar QR Code
+            if (attemptError.response?.status === 409) {
+              const errorData = attemptError.response.data
+              
+              // Se tem QR Code no erro, retornar normalmente
+              if (errorData?.qrcode) {
+                console.log('🔄 Erro 409 mas QR Code presente - retornando QR Code')
+                return {
+                  qrcode: errorData.qrcode,
+                  status: errorData.instance?.status || 'connecting'
+                }
+              }
+              
+              // Se não tem QR Code, mas tem dados da instância, tentar extrair
+              if (errorData?.instance?.qrcode) {
+                console.log('🔄 QR Code encontrado nos dados da instância')
+                return {
+                  qrcode: errorData.instance.qrcode,
+                  status: errorData.instance.status || 'connecting'
+                }
+              }
+            }
+            
+            // Se é erro 400 ou 404, a instância pode não estar pronta ainda
+            if (attemptError.response?.status === 400 || attemptError.response?.status === 404) {
+              if (attempt < maxRetries) {
+                const delay = baseDelay * Math.pow(1.5, attempt - 1)
+                console.log(`⏳ Instância não pronta. Aguardando ${Math.round(delay)}ms... (${attempt}/${maxRetries})`)
+                await new Promise(resolve => setTimeout(resolve, delay))
+                continue
+              }
+            }
+          }
+          
+          // Se chegou aqui e é a última tentativa, lançar erro
+          if (attempt === maxRetries) {
+            console.error(`❌ Todas as ${maxRetries} tentativas falharam`)
+            throw attemptError
+          }
+          
+          // Delay progressivo entre tentativas
+          const delay = baseDelay * Math.pow(1.3, attempt - 1) + Math.random() * 1000
+          console.log(`⏳ Aguardando ${Math.round(delay)}ms antes da próxima tentativa...`)
+          await new Promise(resolve => setTimeout(resolve, delay))
+        }
+      }
+      
+      throw new Error('Não foi possível conectar após múltiplas tentativas')
+      
     } catch (error) {
       console.error('❌ Erro ao conectar instância UazAPI:', error)
       
       if (error instanceof AxiosError) {
-        // Status 409 significa que já está conectando - mas pode ter QR Code
-        if (error.response?.status === 409) {
-          const errorData = error.response.data
-          
-          // Se tem QR Code no erro, retornar normalmente
-          if (errorData?.qrcode) {
-            console.log('🔄 Erro 409 mas QR Code presente - retornando QR Code')
-            return {
-              qrcode: errorData.qrcode,
-              status: errorData.instance?.status || 'connecting'
-            }
-          }
-          
-          // Se não tem QR Code, mas tem dados da instância, tentar extrair
-          if (errorData?.instance?.qrcode) {
-            console.log('🔄 QR Code encontrado nos dados da instância')
-            return {
-              qrcode: errorData.instance.qrcode,
-              status: errorData.instance.status || 'connecting'
-            }
-          }
-        }
+        const errorMessage = error.response?.data?.response || 
+                           error.response?.data?.message || 
+                           error.response?.data?.error ||
+                           error.message
         
-        throw new Error(`Erro ao conectar: ${error.response?.data?.response || error.response?.data?.message || error.message}`)
+        throw new Error(`Erro ao conectar: ${errorMessage}`)
       }
       throw error
     }
@@ -285,22 +373,116 @@ export class UazApiClient {
       const formattedPhone = this.formatPhone(data.phone)
       
       console.log(`📤 Enviando mensagem de texto para ${formattedPhone}`)
+      console.log(`📋 Dados da mensagem:`, { phone: formattedPhone, message: data.message })
       
-      const response = await uazApi.post('/send/text', {
-        phone: formattedPhone,
-        message: data.message
-      }, {
-        headers: {
-          'token': instanceToken
+      // Formatos diferentes para testar até encontrar o correto
+      const formatsToTry = [
+        // Formato 1: text ao invés de message (comum em muitas APIs)
+        {
+          phone: formattedPhone,
+          text: data.message
+        },
+        // Formato 2: with type field
+        {
+          phone: formattedPhone,
+          text: data.message,
+          type: "text"
+        },
+        // Formato 3: message field (formato atual)
+        {
+          phone: formattedPhone,
+          message: data.message
+        },
+        // Formato 4: body field
+        {
+          phone: formattedPhone,
+          body: data.message
+        },
+        // Formato 5: number instead of phone
+        {
+          number: formattedPhone,
+          text: data.message
+        },
+        // Formato 6: to field
+        {
+          to: formattedPhone,
+          text: data.message
+        },
+        // Formato 7: with messaging_service_sid (alguns APIs)
+        {
+          phone: formattedPhone,
+          text: data.message,
+          delay: 1000
         }
-      })
+      ]
       
-      console.log('✅ Mensagem enviada:', response.data)
-      return response.data
+      let lastError: any = null
+      
+      for (let i = 0; i < formatsToTry.length; i++) {
+        const payload = formatsToTry[i]
+        
+        try {
+          console.log(`🧪 Testando Formato ${i + 1}:`, payload)
+          
+          const response = await uazApi.post('/send/text', payload, {
+            headers: {
+              'token': instanceToken,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          })
+          
+          console.log(`✅ Formato ${i + 1} funcionou! Mensagem enviada:`, response.data)
+          
+          // Se chegou aqui, o formato funcionou. Salvar qual formato usar no futuro
+          console.log(`💡 Formato bem-sucedido salvo:`, payload)
+          
+          return response.data
+          
+        } catch (formatError) {
+          console.log(`❌ Formato ${i + 1} falhou:`)
+          
+          if (formatError instanceof AxiosError) {
+            const errorData = formatError.response?.data
+            const status = formatError.response?.status
+            
+            console.log(`  - Status: ${status}`)
+            console.log(`  - Error: ${JSON.stringify(errorData)}`)
+            
+            lastError = formatError
+            
+            // Se é erro 401 (token inválido), não tentar outros formatos
+            if (status === 401) {
+              console.log(`🚫 Erro de token (401) - parando tentativas`)
+              break
+            }
+            
+            // Se é erro 400 mas não "Missing required fields", pode ser formato incorreto
+            if (status === 400 && !errorData?.error?.includes?.('Missing required fields')) {
+              console.log(`⚠️ Erro 400 diferente de "Missing required fields" - tentando próximo formato`)
+              continue
+            }
+          }
+          
+          // Se é último formato, lançar o erro
+          if (i === formatsToTry.length - 1) {
+            console.log(`❌ Todos os formatos falharam`)
+            throw formatError
+          }
+        }
+      }
+      
+      // Se chegou aqui, todos os formatos falharam
+      throw lastError || new Error('Todos os formatos de payload falharam')
+      
     } catch (error) {
       console.error('❌ Erro ao enviar mensagem UazAPI:', error)
       if (error instanceof AxiosError) {
-        throw new Error(`Erro ao enviar mensagem: ${error.response?.data?.message || error.message}`)
+        console.error('📋 Detalhes do erro:')
+        console.error('  - Status:', error.response?.status)
+        console.error('  - Data:', error.response?.data)
+        console.error('  - Headers:', error.response?.headers)
+        throw new Error(`Erro ao enviar mensagem: ${error.response?.data?.message || error.response?.data?.error || error.message}`)
       }
       throw error
     }
@@ -312,15 +494,29 @@ export class UazApiClient {
       const formattedPhone = this.formatPhone(data.phone)
       
       console.log(`📤 Enviando mídia para ${formattedPhone}`)
+      console.log(`📋 Dados da mídia:`, { 
+        phone: formattedPhone, 
+        type: data.media?.type, 
+        url: data.media?.url, 
+        caption: data.media?.caption 
+      })
       
-      const response = await uazApi.post('/send/media', {
+      const payload = {
         phone: formattedPhone,
         type: data.media?.type,
-        url: data.media?.url,
-        caption: data.media?.caption
-      }, {
+        media: data.media?.url,     // Alguns APIs esperam 'media'
+        url: data.media?.url,       // Outros esperam 'url'
+        caption: data.media?.caption,
+        filename: data.media?.caption || 'arquivo',
+        delay: 1000
+      }
+      
+      console.log(`📦 Payload de mídia enviado:`, payload)
+      
+      const response = await uazApi.post('/send/media', payload, {
         headers: {
-          'token': instanceToken
+          'token': instanceToken,
+          'Content-Type': 'application/json'
         }
       })
       
@@ -329,7 +525,11 @@ export class UazApiClient {
     } catch (error) {
       console.error('❌ Erro ao enviar mídia UazAPI:', error)
       if (error instanceof AxiosError) {
-        throw new Error(`Erro ao enviar mídia: ${error.response?.data?.message || error.message}`)
+        console.error('📋 Detalhes do erro de mídia:')
+        console.error('  - Status:', error.response?.status)
+        console.error('  - Data:', error.response?.data)
+        console.error('  - Headers:', error.response?.headers)
+        throw new Error(`Erro ao enviar mídia: ${error.response?.data?.message || error.response?.data?.error || error.message}`)
       }
       throw error
     }

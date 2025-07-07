@@ -121,59 +121,7 @@ export default function SignInPage() {
           </p>
         </div>
 
-        {/* Separador */}
-        <div className="mt-8 relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">ou para testes</span>
-          </div>
-        </div>
 
-        {/* Credenciais de teste */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-sm text-blue-800 text-center mb-3">
-            <strong>🧪 Usuários de Desenvolvimento:</strong>
-          </p>
-          <div className="text-xs text-blue-700 space-y-2">
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('admin@moobi.test')
-                  setPassword('123456')
-                }}
-                className="flex justify-between items-center p-2 bg-white rounded border border-blue-200 hover:bg-blue-50 transition-colors"
-              >
-                <span className="font-medium">Admin</span>
-                <span className="font-mono text-blue-600">admin@moobi.test</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('operador@moobi.test')
-                  setPassword('123456')
-                }}
-                className="flex justify-between items-center p-2 bg-white rounded border border-blue-200 hover:bg-blue-50 transition-colors"
-              >
-                <span className="font-medium">Operador</span>
-                <span className="font-mono text-blue-600">operador@moobi.test</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('supervisor@moobi.test')
-                  setPassword('123456')
-                }}
-                className="flex justify-between items-center p-2 bg-white rounded border border-blue-200 hover:bg-blue-50 transition-colors"
-              >
-                <span className="font-medium">Supervisor</span>
-                <span className="font-mono text-blue-600">supervisor@moobi.test</span>
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Link para voltar */}
         <div className="mt-6 text-center">

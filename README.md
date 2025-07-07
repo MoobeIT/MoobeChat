@@ -89,7 +89,12 @@ DATABASE_URL="postgresql://username:password@localhost:5432/moobi_chat"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
 
-# WhatsApp Business API
+# UazAPI (WhatsApp)
+UAZAPI_URL="https://free.uazapi.com"
+UAZAPI_TOKEN="seu-token-admin-aqui"
+WEBHOOK_URL="http://localhost:3000"
+
+# WhatsApp Business API (Opcional)
 WHATSAPP_BUSINESS_ACCOUNT_ID=""
 WHATSAPP_ACCESS_TOKEN=""
 WHATSAPP_VERIFY_TOKEN=""
@@ -97,10 +102,37 @@ WHATSAPP_VERIFY_TOKEN=""
 # Instagram Basic Display API
 INSTAGRAM_APP_ID=""
 INSTAGRAM_APP_SECRET=""
-
-# Webhook URLs
-WEBHOOK_BASE_URL="http://localhost:3000"
 ```
+
+### 🔧 Configuração do UazAPI
+
+Para configurar a integração com WhatsApp via UazAPI:
+
+1. **Verificar configuração**:
+```bash
+npm run check:uazapi
+```
+
+2. **Configurar variáveis**:
+   - `UAZAPI_URL`: URL do seu servidor UazAPI
+   - `UAZAPI_TOKEN`: Token de administrador
+   - `WEBHOOK_URL`: URL pública da sua aplicação
+
+3. **Testar conexão**:
+   - Acesse `/dashboard/integrations`
+   - Clique em "Testar UazAPI"
+   - Clique em "Sincronizar UazAPI"
+
+4. **Testar mensagens**:
+   - Crie uma instância WhatsApp
+   - Conecte via QR Code
+   - Use o formulário de teste para enviar mensagens
+
+📚 **Documentações**:
+- [CONFIGURACAO-UAZAPI.md](./CONFIGURACAO-UAZAPI.md) - Configuração completa
+- [TESTE-MENSAGENS.md](./TESTE-MENSAGENS.md) - Guia prático de testes
+- [SOLUCOES-PROBLEMAS.md](./SOLUCOES-PROBLEMAS.md) - Soluções para problemas comuns
+- [examples/send-whatsapp-message.js](./examples/send-whatsapp-message.js) - Exemplos de código
 
 ## 📁 Estrutura do Projeto
 
@@ -164,6 +196,9 @@ npm run lint
 npm run db:push      # Aplicar mudanças no schema
 npm run db:generate  # Gerar cliente Prisma
 npm run db:studio    # Interface visual do banco
+
+# UazAPI
+npm run check:uazapi # Verificar configuração UazAPI
 ```
 
 ## 🌐 APIs e Webhooks

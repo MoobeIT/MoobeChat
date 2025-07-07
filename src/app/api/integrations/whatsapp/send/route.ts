@@ -63,6 +63,8 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('🔍 Verificando conexão da instância...')
+    console.log(`🔑 Token obtido do config: ${instanceToken}`)
+    console.log(`📋 Config completo:`, config)
 
     // Verificar se a instância está conectada
     const isConnected = await uazApiClient.isInstanceConnected(instanceToken)

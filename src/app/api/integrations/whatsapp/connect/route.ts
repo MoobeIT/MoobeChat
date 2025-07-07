@@ -47,7 +47,33 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    console.log(`🔗 Tentando conectar instância: ${instanceName}`)
+    console.log(`🔑 Token: ${instanceToken.slice(0, 10)}...`)
+
+    // Verificar se a instância está pronta antes de conectar
+    try {
+      console.log('🔍 Verificando se instância está pronta...')
+      const healthCheck = await uazApiClient.getInstanceStatus(instanceToken)
+      console.log(`📊 Health check resultado:`, healthCheck)
+      
+      // Se a instância foi criada muito recentemente, aguardar um pouco
+      const createdAt = config?.createdAt
+      if (createdAt) {
+        const timeSinceCreation = Date.now() - new Date(createdAt).getTime()
+        const minWaitTime = 5000 // 5 segundos
+        
+        if (timeSinceCreation < minWaitTime) {
+          const waitTime = minWaitTime - timeSinceCreation
+          console.log(`⏳ Instância criada há ${timeSinceCreation}ms, aguardando mais ${waitTime}ms...`)
+          await new Promise(resolve => setTimeout(resolve, waitTime))
+        }
+      }
+    } catch (healthError) {
+      console.warn('⚠️ Erro no health check, tentando conectar mesmo assim:', healthError)
+    }
+
     // Conectar para obter QR Code
+    console.log('🚀 Iniciando conexão para obter QR Code...')
     const connectResult = await uazApiClient.connectInstance(instanceToken)
     
     const result = {

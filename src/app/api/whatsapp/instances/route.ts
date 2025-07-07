@@ -129,12 +129,23 @@ export async function POST(request: NextRequest) {
 
     // Inicializar instância na UazAPI
     try {
+      console.log(`🚀 Iniciando criação da instância UazAPI para platform ${platform.id}`)
+      
       const instanceName = `moobi_${platform.id.replace(/-/g, '').slice(0, 8)}_${Date.now()}`
       const webhookUrl = `${process.env.WEBHOOK_URL}/api/webhooks/uazapi`
       
+      console.log(`📋 Configurações da instância:`)
+      console.log(`  - Nome: ${instanceName}`)
+      console.log(`  - Webhook: ${webhookUrl}`)
+      console.log(`  - Platform ID: ${platform.id}`)
+      
       const initResult = await uazApiClient.initInstance(instanceName, webhookUrl)
       
+      console.log(`✅ Instância criada no UazAPI:`, initResult)
+      
       if (initResult.token) {
+        console.log(`🔗 Token recebido, atualizando plataforma no banco...`)
+        
         // Atualizar plataforma com token da instância
         await prisma.platform.update({
           where: { id: platform.id },
@@ -144,10 +155,42 @@ export async function POST(request: NextRequest) {
               instanceToken: initResult.token,
               instanceName,
               webhookUrl,
-              status: 'initialized'
+              status: 'initialized',
+              uazApiInitialized: true,
+              createdAt: new Date().toISOString()
             }
           }
         })
+        
+        console.log(`✅ Plataforma atualizada com sucesso`)
+        
+        // Verificar se a instância foi realmente criada no UazAPI
+        try {
+          const instanceStatus = await uazApiClient.getInstanceStatus(initResult.token)
+          console.log(`🔍 Status da instância após criação:`, instanceStatus)
+          
+          // Atualizar status no banco
+          await prisma.platform.update({
+            where: { id: platform.id },
+            data: {
+              config: {
+                ...(platform.config as object),
+                instanceToken: initResult.token,
+                instanceName,
+                webhookUrl,
+                status: instanceStatus.status,
+                uazApiInitialized: true,
+                lastSyncAt: new Date().toISOString()
+              }
+            }
+          })
+          
+          console.log(`✅ Status sincronizado: ${instanceStatus.status}`)
+          
+        } catch (statusError) {
+          console.warn(`⚠️ Erro ao verificar status após criação:`, statusError)
+          // Continuar mesmo com erro de status
+        }
       }
 
       return NextResponse.json({ 
@@ -158,11 +201,23 @@ export async function POST(request: NextRequest) {
           status: 'initialized',
           instanceName,
           instanceToken: initResult.token ? '***' : null
+        },
+        debug: {
+          instanceName,
+          webhookUrl,
+          hasToken: !!initResult.token
         }
       })
       
     } catch (uazError) {
-      console.error('Erro ao inicializar instância UazAPI:', uazError)
+      console.error('❌ Erro ao inicializar instância UazAPI:', uazError)
+      
+      // Log detalhado do erro
+      if (uazError instanceof Error) {
+        console.error('📋 Detalhes do erro:')
+        console.error('  - Mensagem:', uazError.message)
+        console.error('  - Stack:', uazError.stack)
+      }
       
       // Remover plataforma se falhou na inicialização
       await prisma.platform.delete({
@@ -170,8 +225,12 @@ export async function POST(request: NextRequest) {
       })
       
       return NextResponse.json({ 
-        error: 'Erro ao inicializar instância WhatsApp',
-        details: uazError instanceof Error ? uazError.message : 'Erro desconhecido'
+        error: 'Erro ao inicializar instância WhatsApp no UazAPI',
+        details: uazError instanceof Error ? uazError.message : 'Erro desconhecido',
+        debug: {
+          platformId: platform.id,
+          errorType: uazError instanceof Error ? uazError.constructor.name : 'unknown'
+        }
       }, { status: 500 })
     }
     
