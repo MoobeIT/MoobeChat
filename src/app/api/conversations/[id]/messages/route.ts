@@ -15,7 +15,7 @@ export async function GET(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const conversationId = params.id
+    const conversationId = (await params).id
 
     // Verificar se a conversa pertence ao workspace do usuário
     const conversation = await prisma.conversation.findFirst({
@@ -46,7 +46,16 @@ export async function GET(
       orderBy: { createdAt: 'asc' }
     })
 
-    return NextResponse.json({ messages, conversation })
+    // Formatar mensagens para o frontend
+    const formattedMessages = messages.map(msg => ({
+      id: msg.id,
+      content: msg.content,
+      sender: msg.direction === 'OUTGOING' ? 'USER' : 'CUSTOMER',
+      timestamp: msg.createdAt.toISOString(),
+      type: msg.messageType
+    }))
+
+    return NextResponse.json({ messages: formattedMessages, conversation })
     
   } catch (error) {
     console.error('Erro ao buscar mensagens:', error)
@@ -65,7 +74,7 @@ export async function POST(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const conversationId = params.id
+    const conversationId = (await params).id
     const { content, messageType = 'TEXT' } = await request.json()
 
     // Verificar se a conversa pertence ao workspace do usuário
@@ -126,7 +135,16 @@ export async function POST(
       }
     })
 
-    return NextResponse.json({ message })
+    // Formatar mensagem para o frontend
+    const formattedMessage = {
+      id: message.id,
+      content: message.content,
+      sender: message.direction === 'OUTGOING' ? 'USER' : 'CUSTOMER',
+      timestamp: message.createdAt.toISOString(),
+      type: message.messageType
+    }
+
+    return NextResponse.json({ message: formattedMessage })
     
   } catch (error) {
     console.error('Erro ao enviar mensagem:', error)

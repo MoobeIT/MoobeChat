@@ -452,6 +452,64 @@ export default function IntegrationsPage() {
           <h1 className="text-2xl font-bold dark:text-white">Integrações</h1>
           <p className="text-gray-600 dark:text-gray-300">Gerencie suas conexões WhatsApp</p>
         </div>
+      </div>
+
+      {/* Card de Conexão Rápida */}
+      <Card className="border-2 border-dashed border-blue-300 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="flex items-center text-blue-700">
+            <Smartphone className="w-5 h-5 mr-2" />
+            Conectar WhatsApp Rapidamente
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-blue-600 mb-4">
+            Para conectar uma plataforma WhatsApp rapidamente, você precisa dos dados da sua instância UazAPI:
+          </p>
+          <Button
+            onClick={() => {
+              const name = prompt('📝 Nome da instância (ex: "WhatsApp Principal"):')
+              if (!name) return
+              
+              const token = prompt('🔗 Token da instância UazAPI:')
+              if (!token) return
+              
+              setError('🔗 Conectando plataforma...')
+              
+              fetch('/api/integrations/whatsapp/connect-simple', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  instanceName: name, 
+                  instanceToken: token 
+                })
+              })
+              .then(res => res.json())
+              .then(data => {
+                if (data.success) {
+                  setError(`✅ ${data.message}`)
+                  loadInstances()
+                } else {
+                  setError(`❌ ${data.error}`)
+                }
+              })
+              .catch(err => {
+                setError(`❌ Erro: ${err.message}`)
+              })
+            }}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Conectar Plataforma WhatsApp
+          </Button>
+          <p className="text-xs text-blue-500 mt-2">
+            💡 Você pode encontrar o token no painel da UazAPI em "Instâncias"
+          </p>
+        </CardContent>
+      </Card>
+      
+      <div className="flex items-center justify-between">
+        <div></div>
         <div className="flex gap-2">
           <Button onClick={loadInstances} variant="outline" size="sm">
             <RefreshCw className="w-4 h-4 mr-2" />
@@ -504,19 +562,303 @@ export default function IntegrationsPage() {
             <Plus className="w-4 h-4 mr-2" />
             Conectar Existente
           </Button>
-          <Button onClick={testUazApiConfig} disabled={testingConfig} variant="outline" size="sm">
-            {testingConfig ? (
-              <>
-                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Testando...
-              </>
-            ) : (
-              <>
+                        <Button onClick={testUazApiConfig} disabled={testingConfig} variant="outline" size="sm">
+                {testingConfig ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Testando...
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Testar UazAPI
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    setError('🧪 Testando webhook...')
+                    
+                    // Pegar primeira instância conectada
+                    const connectedInstance = instances.find(i => i.status === 'connected')
+                    if (!connectedInstance) {
+                      setError('❌ Nenhuma instância conectada encontrada. Conecte uma instância primeiro.')
+                      return
+                    }
+                    
+                    const testPhone = prompt('📱 Digite o número de telefone para testar (ex: 5511999887766):')
+                    if (!testPhone) return
+                    
+                    const testMessage = prompt('💬 Digite a mensagem de teste:') || 'Esta é uma mensagem de teste do webhook!'
+                    
+                    const response = await fetch('/api/test-webhook-message', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        instanceName: connectedInstance.instanceName,
+                        phone: testPhone,
+                        message: testMessage,
+                        senderName: 'Teste Webhook'
+                      })
+                    })
+                    
+                    const result = await response.json()
+                    
+                    if (result.success) {
+                      setError(`✅ Webhook testado com sucesso!
+                      
+🔗 URL do webhook: ${result.details.webhookUrl}
+📱 Instância: ${result.details.instanceName}
+📞 Telefone: ${result.details.phone}
+💬 Mensagem: ${result.details.message}
+
+✅ A mensagem deve ter aparecido na conversa!
+Verifique a aba "Conversas" para ver se a mensagem chegou.`)
+                    } else {
+                      setError(`❌ Erro no webhook: ${result.error}
+                      
+🔗 URL testada: ${result.details?.webhookUrl}
+📊 Status: ${result.details?.status}
+
+💡 Isso pode significar que o webhook não está configurado corretamente.`)
+                    }
+                  } catch (error) {
+                    setError(`❌ Erro ao testar webhook: ${error}`)
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="bg-purple-50 hover:bg-purple-100 text-purple-700"
+              >
+                <Webhook className="w-4 h-4 mr-2" />
+                Testar Webhook
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    setError('🔍 Verificando webhooks recebidos...')
+                    
+                    const response = await fetch('/api/debug-webhook')
+                    const result = await response.json()
+                    
+                    if (result.success) {
+                      if (result.count === 0) {
+                        setError(`📭 Nenhum webhook foi recebido ainda.
+
+🔍 POSSÍVEIS CAUSAS:
+1. O webhook não está configurado corretamente no painel UazAPI
+2. Nenhuma mensagem foi enviada/recebida ainda
+3. O servidor local não está acessível pelo UazAPI
+
+💡 SOLUÇÕES:
+1. Verifique se a URL está correta: http://localhost:3000/api/webhooks/uazapi
+2. Certifique-se que o servidor está rodando
+3. Teste enviando uma mensagem para alguém e peça para responder`)
+                      } else {
+                        let message = `✅ ${result.count} webhooks recebidos!\n\n`
+                        
+                        result.recentWebhooks.forEach((webhook: any, index: number) => {
+                          message += `🔔 Webhook ${index + 1} (${webhook.timestamp}):\n`
+                          message += `   Evento: ${webhook.payload?.event || 'N/A'}\n`
+                          message += `   Instância: ${webhook.payload?.instance || webhook.payload?.instanceName || 'N/A'}\n`
+                          
+                          if (webhook.payload?.data?.messages) {
+                            message += `   Mensagens: ${webhook.payload.data.messages.length}\n`
+                          }
+                          
+                          message += `\n`
+                        })
+                        
+                        message += `💡 Os webhooks estão chegando! Se as mensagens não aparecem nas conversas, pode ser um problema de processamento.`
+                        
+                        setError(message)
+                      }
+                    } else {
+                      setError(`❌ Erro ao verificar webhooks: ${result.error}`)
+                    }
+                  } catch (error) {
+                    setError(`❌ Erro: ${error}`)
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="bg-blue-50 hover:bg-blue-100 text-blue-700"
+              >
+                <Info className="w-4 h-4 mr-2" />
+                Debug Webhook
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    // Pegar primeira instância conectada
+                    const connectedInstance = instances.find(i => i.status === 'connected')
+                    if (!connectedInstance) {
+                      setError('❌ Nenhuma instância conectada encontrada. Conecte uma instância primeiro.')
+                      return
+                    }
+                    
+                    const testPhone = prompt('📱 Digite o número de telefone para testar (ex: 5511999887766):')
+                    if (!testPhone) return
+                    
+                    const testMessage = prompt('💬 Digite a mensagem de teste:') || 'Teste forçado de mensagem webhook'
+                    const testSender = prompt('👤 Nome do remetente:') || 'Teste Webhook'
+                    
+                    setError('🧪 Executando teste forçado...')
+                    
+                    const response = await fetch('/api/force-message-test', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        platformId: connectedInstance.id,
+                        phone: testPhone,
+                        message: testMessage,
+                        senderName: testSender
+                      })
+                    })
+                    
+                    const result = await response.json()
+                    
+                    if (result.success) {
+                      setError(`✅ Teste forçado executado com sucesso!
+                      
+📱 Plataforma: ${result.details.platform}
+🏷️ Instância: ${result.details.instanceName}
+📞 Telefone: ${result.details.phone}
+💬 Mensagem: ${result.details.messageContent}
+👤 Remetente: ${result.details.senderName}
+
+📊 Webhook respondeu: ${result.details.webhookResult?.received ? '✅' : '❌'}
+💾 Mensagem criada: ${result.details.messageCreated ? '✅' : '❌'}
+💬 ID da conversa: ${result.details.conversationId || 'N/A'}
+
+${result.details.messageCreated 
+  ? '🎉 Sucesso! A mensagem deve aparecer na aba "Conversas".' 
+  : '⚠️ Mensagem não foi criada. Verifique os logs do terminal para detalhes.'}`)
+                    } else {
+                      setError(`❌ Erro no teste forçado: ${result.error}`)
+                    }
+                  } catch (error) {
+                    setError(`❌ Erro: ${error}`)
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="bg-red-50 hover:bg-red-100 text-red-700"
+              >
                 <AlertCircle className="w-4 h-4 mr-2" />
-                Testar UazAPI
-              </>
-            )}
-          </Button>
+                Teste Forçado
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    // Pegar primeira instância conectada
+                    const connectedInstance = instances.find(i => i.status === 'connected')
+                    if (!connectedInstance) {
+                      setError('❌ Nenhuma instância conectada encontrada.')
+                      return
+                    }
+
+                    setError('🎯 Configurando captura de webhook...')
+
+                    // Primeiro, configurar o webhook para o endpoint de captura
+                    const captureResponse = await fetch('/api/configure-webhook', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ 
+                        platformId: connectedInstance.id,
+                        customWebhookUrl: 'http://localhost:3000/api/capture-webhook'
+                      })
+                    })
+
+                    if (captureResponse.ok) {
+                      setError(`🎯 Webhook configurado para captura!
+
+⚠️ IMPORTANTE: Agora o webhook está apontando para o capturador.
+
+📋 PRÓXIMOS PASSOS:
+1. Envie uma mensagem para alguém pelo sistema
+2. Peça para a pessoa responder no WhatsApp
+3. Clique em "Ver Capturas" abaixo para analisar o formato real
+4. Depois reconfigure o webhook normal
+
+🔗 Webhook atual: http://localhost:3000/api/capture-webhook`)
+                    } else {
+                      // Se não temos a API personalizada, mostrar instruções manuais
+                      setError(`🎯 Para capturar webhooks reais:
+
+📋 PASSOS MANUAIS:
+1. Vá ao painel UazAPI (https://free.uazapi.com)
+2. Configure o webhook temporariamente para:
+   http://localhost:3000/api/capture-webhook
+3. Envie uma mensagem para alguém e peça para responder
+4. Clique em "Ver Capturas" abaixo
+5. Depois volte o webhook para:
+   http://localhost:3000/api/webhooks/uazapi
+
+💡 Isso nos ajudará a ver exatamente que formato a UazAPI está enviando.`)
+                    }
+                  } catch (error) {
+                    setError(`❌ Erro: ${error}`)
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="bg-yellow-50 hover:bg-yellow-100 text-yellow-700"
+              >
+                <Webhook className="w-4 h-4 mr-2" />
+                Capturar Real
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    setError('🔍 Verificando capturas...')
+                    
+                    const response = await fetch('/api/capture-webhook')
+                    const result = await response.json()
+                    
+                    if (result.success) {
+                      if (result.count === 0) {
+                        setError(`📭 Nenhum webhook real capturado ainda.
+
+💡 COMO CAPTURAR:
+1. Configure temporariamente o webhook para captura
+2. Teste enviando/recebendo mensagens reais
+3. Volte aqui para ver os resultados`)
+                      } else {
+                        let message = `✅ ${result.count} webhooks reais capturados!\n\n`
+                        
+                        if (result.analysis) {
+                          message += `📊 ANÁLISE:\n`
+                          message += `• Eventos únicos: ${result.analysis.uniqueEvents.join(', ')}\n`
+                          message += `• Instâncias: ${result.analysis.uniqueInstances.join(', ')}\n\n`
+                          
+                          message += `🔍 ESTRUTURAS ENCONTRADAS:\n`
+                          result.analysis.structures.forEach((struct: any, index: number) => {
+                            message += `${index + 1}. ${struct.event || 'sem evento'} - Keys: [${struct.keys.join(', ')}]\n`
+                          })
+                          
+                          if (result.analysis.commonStructure?.samplePayload) {
+                            message += `\n📋 EXEMPLO REAL:\n${JSON.stringify(result.analysis.commonStructure.samplePayload, null, 2)}`
+                          }
+                        }
+                        
+                        setError(message)
+                      }
+                    } else {
+                      setError(`❌ Erro ao verificar capturas: ${result.error}`)
+                    }
+                  } catch (error) {
+                    setError(`❌ Erro: ${error}`)
+                  }
+                }}
+                variant="outline"
+                size="sm"
+                className="bg-green-50 hover:bg-green-100 text-green-700"
+              >
+                <Info className="w-4 h-4 mr-2" />
+                Ver Capturas
+              </Button>
           <Button
             onClick={async () => {
               try {
@@ -635,6 +977,87 @@ export default function IntegrationsPage() {
                 O sistema agora faz retry automático com delay inteligente, mas se ainda assim falhar, 
                 tente manualmente após alguns segundos.
               </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Card sobre Webhook - Receber Mensagens */}
+      <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <Webhook className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-orange-800 dark:text-orange-200">
+              🔔 Não está recebendo mensagens de volta?
+            </h3>
+            <div className="mt-2 text-sm text-orange-700 dark:text-orange-300">
+              <p>
+                <strong>Problema comum:</strong> Você consegue enviar mensagens, mas quando as pessoas respondem no WhatsApp, 
+                as respostas não aparecem no sistema.
+              </p>
+              <p className="mt-2">
+                <strong>Causa:</strong> O webhook não está configurado corretamente no painel UazAPI.
+              </p>
+              <p className="mt-2">
+                <strong>Solução:</strong>
+              </p>
+              <ol className="mt-1 ml-4 list-decimal space-y-1">
+                <li>Vá ao painel UazAPI (https://free.uazapi.com)</li>
+                <li>Encontre sua instância conectada</li>
+                <li>Configure o webhook para: <code className="bg-orange-100 px-1 rounded">http://localhost:3000/api/webhooks/uazapi</code></li>
+                <li>Ou clique no botão "Configurar Webhook" da instância conectada abaixo</li>
+                <li>Ou use o botão "Testar Webhook" acima para verificar se está funcionando</li>
+              </ol>
+              <p className="mt-2 text-xs">
+                💡 Se estiver em produção, substitua "localhost:3000" pelo seu domínio real.
+              </p>
+              <div className="mt-3 p-2 bg-orange-100 dark:bg-orange-800 rounded text-xs">
+                <strong>Como testar:</strong> Após configurar o webhook, envie uma mensagem para alguém pelo sistema. 
+                Quando a pessoa responder no WhatsApp, a resposta deve aparecer na aba "Conversas" do sistema.
+              </div>
+              <div className="mt-2 p-2 bg-blue-100 dark:bg-blue-800 rounded text-xs">
+                <strong>🔧 Ferramentas de Debug:</strong><br/>
+                • <strong>Debug Webhook:</strong> Vê se webhooks estão chegando<br/>
+                • <strong>Teste Forçado:</strong> Simula uma mensagem chegando diretamente<br/>
+                • <strong>Testar Webhook:</strong> Testa o processamento completo<br/>
+                • <strong>Capturar Real:</strong> Configura captura de webhooks reais<br/>
+                • <strong>Ver Capturas:</strong> Analisa formato real dos webhooks da UazAPI
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card sobre Captura de Webhooks Reais */}
+        <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <AlertCircle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                🎯 Captura de Webhooks Reais - Diagnóstico Avançado
+              </h3>
+              <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
+                <p>
+                  <strong>Quando usar:</strong> Se o debug funciona mas mensagens reais não chegam, 
+                  pode ser um problema no formato dos dados enviados pela UazAPI.
+                </p>
+                <p className="mt-2">
+                  <strong>Como funciona:</strong>
+                </p>
+                <ol className="mt-1 ml-4 list-decimal space-y-1">
+                  <li>Clique em "Capturar Real" para configurar temporariamente</li>
+                  <li>Envie mensagens reais e peça respostas pelo WhatsApp</li>
+                  <li>Clique em "Ver Capturas" para analisar o formato exato</li>
+                  <li>Compare com nossa documentação para encontrar diferenças</li>
+                  <li>Reconfigure o webhook normal depois</li>
+                </ol>
+                <p className="mt-2 text-xs">
+                  ⚠️ No modo captura, as mensagens não serão processadas normalmente!
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1029,22 +1452,40 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
                     {instance.status === 'connected' && (
                       <>
                         <Button
-                          onClick={() => configureWebhook(instance.id)}
+                          onClick={async () => {
+                            try {
+                              setError('🔗 Configurando webhook...')
+                              
+                              const response = await fetch('/api/configure-webhook', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ platformId: instance.id })
+                              })
+                              
+                              const result = await response.json()
+                              
+                              if (result.success) {
+                                setError(`✅ Webhook configurado com sucesso!
+                                
+🔗 URL: ${result.webhookUrl}
+📱 Instância: ${result.instanceName}
+📊 Status: ${result.status}
+
+🎉 Agora você deve receber mensagens de volta quando as pessoas responderem no WhatsApp!`)
+                              } else {
+                                setError(`❌ Erro ao configurar webhook: ${result.error}`)
+                              }
+                            } catch (error) {
+                              setError(`❌ Erro: ${error}`)
+                            }
+                          }}
                           disabled={configuringWebhook === instance.id}
                           variant="outline"
                           size="sm"
+                          className="bg-green-50 hover:bg-green-100 text-green-700"
                         >
-                          {configuringWebhook === instance.id ? (
-                            <>
-                              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                              Configurando...
-                            </>
-                          ) : (
-                            <>
-                              <Webhook className="w-4 h-4 mr-2" />
-                              Webhook
-                            </>
-                          )}
+                          <Webhook className="w-4 h-4 mr-2" />
+                          Configurar Webhook
                         </Button>
                         
                         <Button

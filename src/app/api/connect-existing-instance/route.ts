@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { uazApiClient } from '@/lib/uazapi'
+import { ensureUserWorkspace } from '@/lib/workspace'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,22 +23,12 @@ export async function POST(request: NextRequest) {
 
     console.log(`🔗 Conectando a instância existente: ${instanceToken}`)
 
-    // Buscar o workspace do usuário
-    const workspace = await prisma.workspace.findFirst({
-      where: {
-        users: {
-          some: {
-            userId: session.user.id
-          }
-        }
-      }
-    })
-
-    if (!workspace) {
-      return NextResponse.json({ 
-        error: 'Workspace não encontrado' 
-      }, { status: 404 })
-    }
+    // Garantir que o workspace do usuário existe
+    const workspace = await ensureUserWorkspace(
+      session.user.id, 
+      session.user.email || undefined, 
+      session.user.name || undefined
+    )
 
     // Verificar se a instância existe no UazAPI
     try {

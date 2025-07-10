@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { ensureUserWorkspace } from '@/lib/workspace'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,20 +12,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    // Buscar workspace do usuário
-    const workspace = await prisma.workspace.findFirst({
-      where: {
-        users: {
-          some: {
-            userId: session.user.id
-          }
-        }
-      }
-    })
-
-    if (!workspace) {
-      return NextResponse.json({ error: 'Workspace não encontrado' }, { status: 404 })
-    }
+    // Garantir que o workspace do usuário existe
+    const workspace = await ensureUserWorkspace(
+      session.user.id,
+      session.user.email || undefined,
+      session.user.name || undefined
+    )
 
     // Buscar todas as plataformas/integrações
     const platforms = await prisma.platform.findMany({
@@ -59,20 +52,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Tipo e nome são obrigatórios' }, { status: 400 })
     }
 
-    // Buscar workspace do usuário
-    const workspace = await prisma.workspace.findFirst({
-      where: {
-        users: {
-          some: {
-            userId: session.user.id
-          }
-        }
-      }
-    })
-
-    if (!workspace) {
-      return NextResponse.json({ error: 'Workspace não encontrado' }, { status: 404 })
-    }
+    // Garantir que o workspace do usuário existe
+    const workspace = await ensureUserWorkspace(
+      session.user.id,
+      session.user.email || undefined,
+      session.user.name || undefined
+    )
 
     // Criar nova integração
     const platform = await prisma.platform.create({

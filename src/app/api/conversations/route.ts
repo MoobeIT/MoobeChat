@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { ensureUserWorkspace } from '@/lib/workspace'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,20 +17,12 @@ export async function GET(request: NextRequest) {
     const platform = searchParams.get('platform')
     const search = searchParams.get('search')
 
-    // Buscar workspace do usuário (por simplicidade, pegar o primeiro)
-    const workspace = await prisma.workspace.findFirst({
-      where: {
-        users: {
-          some: {
-            userId: session.user.id
-          }
-        }
-      }
-    })
-
-    if (!workspace) {
-      return NextResponse.json({ conversations: [] })
-    }
+    // Garantir que o workspace do usuário existe
+    const workspace = await ensureUserWorkspace(
+      session.user.id,
+      session.user.email || undefined,
+      session.user.name || undefined
+    )
 
     const whereClause: any = {
       workspaceId: workspace.id
@@ -68,7 +61,24 @@ export async function GET(request: NextRequest) {
       orderBy: { lastMessageAt: 'desc' }
     })
 
-    return NextResponse.json({ conversations })
+    // Mapear as conversas para garantir que os dados estão no formato correto
+    const formattedConversations = conversations.map(conv => ({
+      id: conv.id,
+      customerName: conv.customerName || 'Cliente não identificado',
+      customerPhone: conv.customerPhone || 'Telefone não disponível',
+      platform: {
+        type: conv.platform.type,
+        name: conv.platform.name
+      },
+      lastMessage: conv.messages.length > 0 ? {
+        content: conv.messages[0].content,
+        createdAt: conv.messages[0].createdAt.toISOString()
+      } : null,
+      status: conv.status,
+      unreadCount: conv._count.messages
+    }))
+
+    return NextResponse.json({ conversations: formattedConversations })
     
   } catch (error) {
     console.error('Erro ao buscar conversas:', error)

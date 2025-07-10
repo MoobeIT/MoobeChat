@@ -16,7 +16,7 @@ export async function GET(
 
     const platform = await prisma.platform.findFirst({
       where: {
-        id: params.id,
+        id: (await params).id,
         workspace: {
           users: {
             some: {
@@ -54,7 +54,7 @@ export async function PUT(
 
     const platform = await prisma.platform.findFirst({
       where: {
-        id: params.id,
+        id: (await params).id,
         workspace: {
           users: {
             some: {
@@ -71,7 +71,7 @@ export async function PUT(
 
     const updatedPlatform = await prisma.platform.update({
       where: {
-        id: params.id
+        id: (await params).id
       },
       data: {
         ...(name && { name }),
@@ -101,7 +101,7 @@ export async function DELETE(
 
     const platform = await prisma.platform.findFirst({
       where: {
-        id: params.id,
+        id: (await params).id,
         workspace: {
           users: {
             some: {
@@ -118,7 +118,7 @@ export async function DELETE(
 
     await prisma.platform.delete({
       where: {
-        id: params.id
+        id: (await params).id
       }
     })
 

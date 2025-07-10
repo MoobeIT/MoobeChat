@@ -12,12 +12,14 @@ import {
   BarChart3,
   Zap,
   Plug,
-  Home
+  Home,
+  Contact
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Conversas', href: '/dashboard/conversations', icon: MessageSquare },
+  { name: 'Contatos', href: '/dashboard/contacts', icon: Contact },
   { name: 'Kanban', href: '/dashboard/kanban', icon: Kanban },
   { name: 'Integrações', href: '/dashboard/integrations', icon: Plug },
   { name: 'Automações', href: '/dashboard/automations', icon: Zap },

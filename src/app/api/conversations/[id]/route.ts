@@ -15,7 +15,7 @@ export async function PATCH(
     }
 
     const { status, priority } = await request.json()
-    const conversationId = params.id
+    const conversationId = (await params).id
 
     // Verificar se a conversa pertence ao usuário
     const userWorkspaces = await prisma.workspaceUser.findMany({

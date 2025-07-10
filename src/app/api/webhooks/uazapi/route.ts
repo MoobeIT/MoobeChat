@@ -6,6 +6,17 @@ export async function POST(request: NextRequest) {
     const payload = await request.json()
     
     console.log('🔔 Webhook UazAPI recebido:', JSON.stringify(payload, null, 2))
+    
+    // Salvar no debug também
+    try {
+      await fetch(`${process.env.WEBHOOK_URL || 'http://localhost:3000'}/api/debug-webhook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+    } catch (debugError) {
+      console.warn('⚠️ Erro ao salvar debug:', debugError)
+    }
 
     // Diferentes formatos de payload da UazAPI
     const { event, instance, data, instanceName, messageData } = payload
@@ -25,6 +36,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar plataforma pela instância
+    console.log(`🔍 Buscando plataforma para instância: ${instanceId}`)
+    
     const platform = await prisma.platform.findFirst({
       where: {
         OR: [
@@ -39,6 +52,12 @@ export async function POST(request: NextRequest) {
               path: ['instanceId'],
               equals: instanceId
             }
+          },
+          {
+            config: {
+              path: ['instanceToken'],
+              string_contains: instanceId
+            }
           }
         ],
         type: 'WHATSAPP'
@@ -50,7 +69,20 @@ export async function POST(request: NextRequest) {
 
     if (!platform) {
       console.log(`❌ Plataforma não encontrada para instância: ${instanceId}`)
-      return NextResponse.json({ received: true, message: 'Plataforma não encontrada' })
+      
+      // Listar plataformas existentes para debug
+      const allPlatforms = await prisma.platform.findMany({
+        where: { type: 'WHATSAPP' },
+        select: { id: true, name: true, config: true }
+      })
+      
+      console.log('🔍 Plataformas WhatsApp existentes:')
+      allPlatforms.forEach(p => {
+        const config = p.config as any
+        console.log(`  - ${p.name}: instanceName=${config.instanceName}, instanceId=${config.instanceId}`)
+      })
+      
+      return NextResponse.json({ received: true, message: `Plataforma não encontrada para ${instanceId}` })
     }
 
     console.log(`✅ Plataforma encontrada: ${platform.name} (${platform.id})`)
@@ -90,15 +122,22 @@ export async function POST(request: NextRequest) {
 
 async function handleMessageEvent(platform: any, messageData: any) {
   try {
-    console.log('📨 Processando mensagem:', messageData)
+    console.log('📨 Processando mensagem:', JSON.stringify(messageData, null, 2))
     
     // Diferentes formatos de dados de mensagem
     const message = messageData.messages?.[0] || messageData.message || messageData
     
     if (!message) {
       console.log('❌ Dados da mensagem não encontrados')
+      console.log('❌ Estrutura recebida:', {
+        hasMessages: !!messageData.messages,
+        hasMessage: !!messageData.message,
+        keys: Object.keys(messageData)
+      })
       return
     }
+    
+    console.log('✅ Mensagem extraída:', JSON.stringify(message, null, 2))
 
     const {
       key,
@@ -167,6 +206,8 @@ async function handleMessageEvent(platform: any, messageData: any) {
     console.log(`📱 Mensagem de ${phoneNumber} (${senderName}): ${content}`)
 
     // Buscar ou criar conversa
+    console.log(`🔍 Buscando conversa para ${phoneNumber} na plataforma ${platform.id}`)
+    
     let conversation = await prisma.conversation.findFirst({
       where: {
         platformId: platform.id,
@@ -188,7 +229,9 @@ async function handleMessageEvent(platform: any, messageData: any) {
           lastMessageAt: new Date(timestamp)
         }
       })
+      console.log('✅ Nova conversa criada:', conversation.id)
     } else {
+      console.log('📱 Conversa existente encontrada:', conversation.id)
       // Atualizar nome do cliente se mudou
       if (conversation.customerName !== senderName && senderName !== 'Desconhecido') {
         await prisma.conversation.update({
@@ -198,6 +241,7 @@ async function handleMessageEvent(platform: any, messageData: any) {
             lastMessageAt: new Date(timestamp)
           }
         })
+        console.log('📝 Nome do cliente atualizado')
       }
     }
 
@@ -215,7 +259,17 @@ async function handleMessageEvent(platform: any, messageData: any) {
     }
 
     // Salvar mensagem
-    await prisma.message.create({
+    console.log('💾 Salvando mensagem no banco:', {
+      conversationId: conversation.id,
+      externalId: messageId,
+      content: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+      messageType,
+      direction: 'INCOMING',
+      senderName,
+      phoneNumber
+    })
+    
+    const savedMessage = await prisma.message.create({
       data: {
         conversationId: conversation.id,
         externalId: messageId,
@@ -233,7 +287,7 @@ async function handleMessageEvent(platform: any, messageData: any) {
       }
     })
 
-    console.log('✅ Mensagem salva com sucesso')
+    console.log('✅ Mensagem salva com sucesso:', savedMessage.id)
     
   } catch (error) {
     console.error('❌ Erro ao processar mensagem:', error)
