@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { conversationOperations, messageOperations, platformOperations, createKanbanCardForConversation } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -35,18 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se a plataforma pertence ao usuário
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: platformId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
-    })
+    const platform = await platformOperations.findById(platformId)
 
     if (!platform) {
       return NextResponse.json({ error: 'Plataforma não encontrada' }, { status: 404 })
@@ -113,49 +102,49 @@ export async function POST(request: NextRequest) {
       // Salvar mensagem no banco de dados
       try {
         // Buscar ou criar conversa
-        let conversation = await prisma.conversation.findFirst({
-          where: {
-            platformId: platform.id,
-            externalId: phone.replace(/\D/g, '')
-          }
-        })
+        let conversation = await conversationOperations.findByExternalId(phone.replace(/\D/g, ''), platform.id)
 
         if (!conversation) {
           console.log('🆕 Criando nova conversa para envio')
-          conversation = await prisma.conversation.create({
-            data: {
-              workspaceId: platform.workspaceId,
-              platformId: platform.id,
-              externalId: phone.replace(/\D/g, ''),
-              customerPhone: phone,
-              status: 'OPEN',
-              priority: 'MEDIUM',
-              lastMessageAt: new Date()
-            }
+          conversation = await conversationOperations.create({
+            workspace_id: platform.workspace_id,
+            platform_id: platform.id,
+            external_id: phone.replace(/\D/g, ''),
+            customer_name: phone,
+            customer_phone: phone,
+            status: 'OPEN',
+            priority: 'MEDIUM',
+            last_message_at: new Date().toISOString()
           })
+
+          // Criar card no Kanban automaticamente
+          try {
+            await createKanbanCardForConversation(conversation.id, platform.workspace_id)
+            console.log(`Card do Kanban criado para conversa ${conversation.id} via envio`)
+          } catch (error) {
+            console.error('Erro ao criar card no Kanban via envio:', error)
+            // Não falhar o envio se o card falhar
+          }
         } else {
           // Atualizar última mensagem
-          await prisma.conversation.update({
-            where: { id: conversation.id },
-            data: { lastMessageAt: new Date() }
+          await conversationOperations.update(conversation.id, {
+            last_message_at: new Date().toISOString()
           })
         }
 
         // Salvar mensagem
-        const savedMessage = await prisma.message.create({
-          data: {
-            conversationId: conversation.id,
-            externalId: result.messageId || result.id || `out_${Date.now()}`,
-            content: messageContent,
-            messageType: media ? media.type.toUpperCase() as any : 'TEXT',
-            direction: 'OUTGOING',
-            senderName: session.user.name || 'Sistema',
-            metadata: {
-              uazApiResult: result,
-              media: media || null,
-              sentBy: session.user.id,
-              sentAt: new Date().toISOString()
-            }
+        const savedMessage = await messageOperations.create({
+          conversation_id: conversation.id,
+          external_id: result.messageId || result.id || `out_${Date.now()}`,
+          content: messageContent,
+          message_type: media ? media.type.toUpperCase() : 'TEXT',
+          direction: 'OUTGOING',
+          sender_name: session.user.name || 'Sistema',
+          metadata: {
+            uazApiResult: result,
+            media: media || null,
+            sentBy: session.user.id,
+            sentAt: new Date().toISOString()
           }
         })
 
@@ -207,7 +196,7 @@ export async function POST(request: NextRequest) {
 // GET - Testar envio de mensagem
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -224,18 +213,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verificar se a plataforma pertence ao usuário
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: platformId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
-    })
+    const platform = await platformOperations.findById(platformId)
 
     if (!platform) {
       return NextResponse.json({ error: 'Plataforma não encontrada' }, { status: 404 })
@@ -267,4 +245,4 @@ export async function GET(request: NextRequest) {
       error: 'Erro interno do servidor' 
     }, { status: 500 })
   }
-} 
+}

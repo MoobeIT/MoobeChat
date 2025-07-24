@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { platformOperations } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -19,18 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se a plataforma pertence ao usuário
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: platformId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
-    })
+    const platform = await platformOperations.findById(platformId)
 
     if (!platform) {
       return NextResponse.json({ error: 'Plataforma não encontrada' }, { status: 404 })
@@ -99,7 +88,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -144,4 +133,4 @@ export async function GET(request: NextRequest) {
     console.error('Erro ao verificar status WhatsApp:', error)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
-} 
+}

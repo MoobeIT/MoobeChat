@@ -11,6 +11,7 @@ export interface User {
   name?: string
   image?: string
   role: string
+  workspaceId?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -25,13 +26,13 @@ export interface Workspace {
 
 export interface Platform {
   id: string
-  workspaceId: string
+  workspace_id: string
   type: PlatformType
   name: string
   config: any
-  isActive: boolean
-  createdAt: Date
-  updatedAt: Date
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface Conversation {
@@ -164,4 +165,4 @@ export interface DragResult {
   draggableId: string
 }
 
-// Tipos já exportados acima 
+// Tipos já exportados acima

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { platformOperations } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
 import { ensureUserWorkspace } from '@/lib/workspace'
+import { randomUUID } from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,22 +37,21 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Instância encontrada no UazAPI:`, instanceStatus)
 
       // Criar plataforma no banco de dados
-      const platform = await prisma.platform.create({
-        data: {
-          name: instanceName || instanceStatus.instanceId || `Instância ${instanceToken.slice(0, 8)}`,
-          type: 'WHATSAPP',
-          workspaceId: workspace.id,
-          config: {
-            instanceToken: instanceToken,
-            instanceName: instanceStatus.instanceId,
-            status: instanceStatus.status,
-            uazApiInitialized: true,
-            connectedAt: new Date().toISOString(),
-            importedFromExisting: true,
-            webhookUrl: `${process.env.WEBHOOK_URL}/api/webhooks/uazapi`
-          },
-          isActive: instanceStatus.status === 'connected'
-        }
+      const platform = await platformOperations.create({
+        id: randomUUID(),
+        name: instanceName || instanceStatus.instanceId || `Instância ${instanceToken.slice(0, 8)}`,
+        type: 'WHATSAPP',
+        workspace_id: workspace.id,
+        config: {
+          instanceToken: instanceToken,
+          instanceName: instanceStatus.instanceId,
+          status: instanceStatus.status,
+          uazApiInitialized: true,
+          connectedAt: new Date().toISOString(),
+          importedFromExisting: true,
+          webhookUrl: `${process.env.WEBHOOK_URL}/api/webhooks/uazapi`
+        },
+        is_active: instanceStatus.status === 'connected'
       })
 
       // Configurar webhook se a instância estiver conectada
@@ -62,15 +62,15 @@ export async function POST(request: NextRequest) {
           console.log(`🔗 Webhook configurado: ${webhookUrl}`)
           
           // Atualizar configuração com webhook
-          await prisma.platform.update({
-            where: { id: platform.id },
-            data: {
+          await platformOperations.update(
+            { id: platform.id },
+            {
               config: {
                 ...(platform.config as any),
                 webhookConfigured: true
               }
             }
-          })
+          )
         } catch (webhookError) {
           console.warn('⚠️ Erro ao configurar webhook:', webhookError)
         }
@@ -105,4 +105,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

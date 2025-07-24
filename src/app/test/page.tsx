@@ -125,7 +125,22 @@ export default function TestPage() {
     }
   }
 
-  // Teste 5: Testar webhook
+  // Teste 5: Testar configuração UazAPI
+  const testUazApiConfig = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/test-uazapi-config')
+      const data = await response.json()
+      
+      addResult('Configuração UazAPI', data.success, data)
+    } catch (error) {
+      addResult('Configuração UazAPI', false, null, error instanceof Error ? error.message : 'Erro desconhecido')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Teste 6: Testar webhook
   const testWebhook = async () => {
     setLoading(true)
     try {
@@ -143,6 +158,7 @@ export default function TestPage() {
   // Executar todos os testes
   const runAllTests = async () => {
     clearResults()
+    await testUazApiConfig()
     await testLoadInstances()
     await testWebhook()
     
@@ -289,6 +305,31 @@ export default function TestPage() {
 
         <Card>
           <CardHeader>
+            <CardTitle className="text-lg">Configuração UazAPI</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={testUazApiConfig} 
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Testando...
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  Testar
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle className="text-lg">Testar Webhook</CardTitle>
           </CardHeader>
           <CardContent>
@@ -312,7 +353,7 @@ export default function TestPage() {
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg">Executar Todos os Testes</CardTitle>
           </CardHeader>
@@ -388,4 +429,4 @@ export default function TestPage() {
       )}
     </div>
   )
-} 
+}

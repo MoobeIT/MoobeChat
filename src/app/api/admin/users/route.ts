@@ -1,32 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { userOperations } from '@/lib/database'
 
 export async function GET(request: NextRequest) {
   try {
     // Buscar todos os usuários com seus workspaces
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-        workspaces: {
-          select: {
-            role: true,
-            workspace: {
-              select: {
-                id: true,
-                name: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+    const users = await userOperations.findMany()
 
     return NextResponse.json({
       success: true,
@@ -64,9 +42,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verificar se usuário existe
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    })
+    const user = await userOperations.findById(userId)
 
     if (!user) {
       return NextResponse.json({ 
@@ -75,9 +51,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Deletar usuário (cascade irá deletar relacionamentos)
-    await prisma.user.delete({
-      where: { id: userId }
-    })
+    await userOperations.delete(userId)
 
     return NextResponse.json({
       success: true,
@@ -91,4 +65,4 @@ export async function DELETE(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

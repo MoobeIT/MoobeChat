@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { platformOperations } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
 
 // POST - Sincronizar instâncias com UazAPI
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -16,24 +16,9 @@ export async function POST(request: NextRequest) {
     console.log('🔄 Iniciando sincronização de instâncias com UazAPI...')
 
     // Buscar instâncias locais
-    const localInstances = await prisma.platform.findMany({
-      where: {
-        type: 'WHATSAPP',
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      },
-      include: {
-        workspace: {
-          select: {
-            name: true
-          }
-        }
-      }
+    const localInstances = await platformOperations.findMany({
+      type: 'WHATSAPP',
+      workspace_id: session.user.workspaceId
     })
 
     console.log(`📊 Instâncias locais encontradas: ${localInstances.length}`)
@@ -85,14 +70,11 @@ export async function POST(request: NextRequest) {
               console.log(`📊 Status atual da instância ${instanceName}: ${status.status}`)
               
               // Atualizar status no banco
-              await prisma.platform.update({
-                where: { id: localInstance.id },
-                data: {
-                  config: {
-                    ...config,
-                    status: status.status,
-                    lastSyncAt: new Date().toISOString()
-                  }
+              await platformOperations.update(localInstance.id, {
+                config: {
+                  ...config,
+                  status: status.status,
+                  lastSyncAt: new Date().toISOString()
                 }
               })
               
@@ -157,15 +139,12 @@ export async function POST(request: NextRequest) {
             console.log(`📊 Status atual da instância ${instanceName}: ${status.status}`)
             
             // Atualizar status no banco
-            await prisma.platform.update({
-              where: { id: localInstance.id },
-              data: {
-                config: {
-                  ...config,
-                  status: status.status,
-                  lastSyncAt: new Date().toISOString(),
-                  uazApiInstanceId: uazInstance.id || uazInstance.instanceId
-                }
+            await platformOperations.update(localInstance.id, {
+              config: {
+                ...config,
+                status: status.status,
+                lastSyncAt: new Date().toISOString(),
+                uazApiInstanceId: uazInstance.id || uazInstance.instanceId
               }
             })
             
@@ -263,4 +242,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

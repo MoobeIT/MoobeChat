@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { userOperations } from '@/lib/database'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     console.log('🔍 Session completa:', JSON.stringify(session, null, 2))
 
@@ -17,38 +17,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Verificar se o usuário existe na tabela users
-    const userInDb = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: {
-        workspaces: {
-          include: {
-            workspace: true
-          }
-        }
-      }
-    })
+    const userInDb = await userOperations.findById(session.user.id)
 
     // Verificar se existe pelo email
-    const userByEmail = await prisma.user.findUnique({
-      where: { email: session.user.email! },
-      include: {
-        workspaces: {
-          include: {
-            workspace: true
-          }
-        }
-      }
-    })
+    const userByEmail = await userOperations.findByEmail(session.user.email)
 
     // Listar todos os usuários para debug
-    const allUsers = await prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        createdAt: true
-      }
-    })
+    const allUsers = await userOperations.findMany()
 
     return NextResponse.json({
       session: {
@@ -73,4 +48,4 @@ export async function GET(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

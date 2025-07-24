@@ -10,12 +10,12 @@ export default function LandingPage() {
                       <span className="text-2xl font-bold text-gray-900">Moobe Chat</span>
         </div>
         <div className="space-x-4">
-          <Link href="/dashboard">
+          <Link href="/auth/signin">
             <button className="px-4 py-2 text-gray-600 hover:text-gray-900">
               Entrar
             </button>
           </Link>
-          <Link href="/dashboard">
+          <Link href="/auth/register">
             <button className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
               Começar Agora
             </button>
@@ -34,7 +34,7 @@ export default function LandingPage() {
           em um só lugar com organização por Kanban
         </p>
         <div className="space-x-4">
-          <Link href="/dashboard">
+          <Link href="/auth/register">
             <button className="px-8 py-4 bg-blue-600 text-white text-lg rounded-md hover:bg-blue-700">
               Experimente Grátis
             </button>
@@ -111,4 +111,4 @@ export default function LandingPage() {
       </footer>
     </div>
   )
-} 
+}

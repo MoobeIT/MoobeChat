@@ -32,7 +32,7 @@ interface Platform {
   id: string
   name: string
   type: string
-  isActive: boolean
+  is_active: boolean
 }
 
 const platformColors = {
@@ -98,9 +98,12 @@ export default function ConversationsPage() {
       if (response.ok) {
         const data = await response.json()
         setPlatforms(data.platforms || [])
+      } else {
+        setPlatforms([])
       }
     } catch (error) {
       console.error('Erro ao buscar plataformas:', error)
+      setPlatforms([])
     }
   }
 
@@ -159,6 +162,38 @@ export default function ConversationsPage() {
     }
   }
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta conversa? Esta ação não pode ser desfeita.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        // Remover a conversa da lista
+        setConversations(prev => prev.filter(conv => conv.id !== conversationId))
+        
+        // Se a conversa deletada estava selecionada, limpar seleção
+        if (selectedConversation?.id === conversationId) {
+          setSelectedConversation(null)
+          setMessages([])
+        }
+        
+        // Atualizar lista de conversas
+        fetchConversations()
+      } else {
+        const errorData = await response.json()
+        alert(`Erro ao excluir conversa: ${errorData.error || 'Erro desconhecido'}`)
+      }
+    } catch (error) {
+      console.error('Erro ao excluir conversa:', error)
+      alert('Erro ao excluir conversa. Tente novamente.')
+    }
+  }
+
   const filteredConversations = conversations.filter(conv =>
     (conv.customerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (conv.customerPhone || '').includes(searchTerm)
@@ -177,12 +212,12 @@ export default function ConversationsPage() {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-[calc(100vh-8rem)]">
       {/* Lista de Conversas */}
-      <div className="w-80 border-r bg-white">
-        <div className="p-4 border-b">
+      <div className="w-80 border-r bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 flex flex-col">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Conversas</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Conversas</h2>
             <div className="flex space-x-2">
               <button 
                 onClick={fetchConversations}
@@ -206,27 +241,27 @@ export default function ConversationsPage() {
               placeholder="Buscar conversas..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             />
           </div>
           <div className="flex items-center space-x-2">
-            <button className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50">
+            <button className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
               📊 Filtros
             </button>
-            <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-md">
+            <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md">
               Todas ({filteredConversations.length})
             </span>
           </div>
         </div>
         
-        <div className="overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           {filteredConversations.length > 0 ? (
             filteredConversations.map((conversation) => (
               <div
                 key={conversation.id}
                 onClick={() => setSelectedConversation(conversation)}
-                className={`p-4 border-b cursor-pointer hover:bg-gray-50 transition-colors ${
-                  selectedConversation?.id === conversation.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                className={`p-4 border-b border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                  selectedConversation?.id === conversation.id ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-blue-500 dark:border-l-blue-400' : ''
                 }`}
               >
                 <div className="flex items-start space-x-3">
@@ -239,12 +274,12 @@ export default function ConversationsPage() {
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-900 truncate">
+                      <h3 className="font-medium text-gray-900 dark:text-white truncate">
                         {conversation.customerName || 'Nome não disponível'}
                       </h3>
                       <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 text-xs rounded-md ${platformColors[conversation.platform.type as keyof typeof platformColors] || 'bg-gray-100 text-gray-800'}`}>
-                          {conversation.platform.name}
+                        <span className={`px-2 py-1 text-xs rounded-md ${platformColors[conversation.platform?.type as keyof typeof platformColors] || 'bg-gray-100 text-gray-800'}`}>
+                          {conversation.platform?.name || 'Plataforma não encontrada'}
                         </span>
                         {conversation.unreadCount > 0 && (
                           <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
@@ -254,11 +289,11 @@ export default function ConversationsPage() {
                       </div>
                     </div>
                     
-                    <p className="text-sm text-gray-600 truncate mt-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 truncate mt-1">
                       {conversation.lastMessage?.content || 'Sem mensagens'}
                     </p>
                     
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                       {conversation.lastMessage ? formatTime(conversation.lastMessage.createdAt) : '-'}
                     </p>
                   </div>
@@ -266,7 +301,7 @@ export default function ConversationsPage() {
               </div>
             ))
           ) : (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
               <p>Nenhuma conversa encontrada</p>
               <p className="text-sm mt-2">Clique em "Nova" para iniciar uma conversa</p>
             </div>
@@ -279,33 +314,40 @@ export default function ConversationsPage() {
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b bg-white">
+            <div className="p-4 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                  <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
                     {(selectedConversation.customerName || 'N/A').split(' ').map(n => n[0]).join('').substring(0, 2)}
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-gray-900 dark:text-white">
                       {selectedConversation.customerName || 'Nome não disponível'}
                     </h3>
                     <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs rounded-md ${platformColors[selectedConversation.platform.type as keyof typeof platformColors] || 'bg-gray-100 text-gray-800'}`}>
-                        {selectedConversation.platform.name}
+                      <span className={`px-2 py-1 text-xs rounded-md ${platformColors[selectedConversation.platform?.type as keyof typeof platformColors] || 'bg-gray-100 text-gray-800'}`}>
+                        {selectedConversation.platform?.name || 'Plataforma não encontrada'}
                       </span>
-                      <span className="text-sm text-gray-500">{selectedConversation.customerPhone || 'Telefone não disponível'}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{selectedConversation.customerPhone || 'Telefone não disponível'}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+                  <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
                     📞
                   </button>
-                  <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+                  <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
                     📹
                   </button>
-                  <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+                  <button 
+                    onClick={() => handleDeleteConversation(selectedConversation.id)}
+                    className="p-2 text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                    title="Excluir conversa"
+                  >
+                    🗑️
+                  </button>
+                  <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
                     ⋮
                   </button>
                 </div>
@@ -313,7 +355,7 @@ export default function ConversationsPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900 min-h-0">
               {messages.length > 0 ? (
                 messages.map((message) => (
                   <div
@@ -323,13 +365,13 @@ export default function ConversationsPage() {
                     <div
                       className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                         message.sender === 'USER'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-100 text-gray-900'
+                          ? 'bg-blue-500 dark:bg-blue-600 text-white'
+                          : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700'
                       }`}
                     >
                       <p className="text-sm">{message.content}</p>
                       <p className={`text-xs mt-1 ${
-                        message.sender === 'USER' ? 'text-blue-100' : 'text-gray-500'
+                        message.sender === 'USER' ? 'text-blue-100 dark:text-blue-200' : 'text-gray-500 dark:text-gray-400'
                       }`}>
                         {formatTime(message.timestamp)}
                       </p>
@@ -337,7 +379,7 @@ export default function ConversationsPage() {
                   </div>
                 ))
               ) : (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
                   <p>Nenhuma mensagem ainda</p>
                   <p className="text-sm mt-2">Seja o primeiro a enviar uma mensagem!</p>
                 </div>
@@ -345,9 +387,9 @@ export default function ConversationsPage() {
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t bg-white">
+            <div className="p-4 border-t bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-2">
-                <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md">
+                <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
                   📎
                 </button>
                 <input
@@ -356,7 +398,7 @@ export default function ConversationsPage() {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                 />
                 <button 
                   onClick={handleSendMessage} 
@@ -373,7 +415,7 @@ export default function ConversationsPage() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
+          <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900">
             <div className="text-center">
               <p className="text-lg">Selecione uma conversa</p>
               <p className="text-sm mt-2">Escolha uma conversa da lista para começar</p>
@@ -436,12 +478,12 @@ export default function ConversationsPage() {
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md border dark:border-gray-700">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Nova Conversa</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Nova Conversa</h3>
             <button 
               onClick={() => setShowNewConversationModal(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
             >
               ✕
             </button>
@@ -449,16 +491,16 @@ export default function ConversationsPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Plataforma
               </label>
               <select
                 value={selectedPlatform}
                 onChange={(e) => setSelectedPlatform(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               >
                 <option value="">Selecione uma plataforma</option>
-                {platforms.filter(p => p.isActive).map(platform => (
+                {platforms.filter(p => p.is_active === true).map(platform => (
                   <option key={platform.id} value={platform.id}>
                     {platform.name} ({platform.type})
                   </option>
@@ -467,7 +509,7 @@ export default function ConversationsPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Número do WhatsApp
               </label>
               <input
@@ -475,15 +517,15 @@ export default function ConversationsPage() {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="Ex: 5511999999999"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Digite o número com código do país (Ex: 55 para Brasil)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Nome do Cliente (opcional)
               </label>
               <input
@@ -491,7 +533,7 @@ export default function ConversationsPage() {
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
                 placeholder="Nome do cliente"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               />
             </div>
           </div>
@@ -499,7 +541,7 @@ export default function ConversationsPage() {
           <div className="flex justify-end space-x-2 mt-6">
             <button
               onClick={() => setShowNewConversationModal(false)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
             >
               Cancelar
             </button>
@@ -519,4 +561,4 @@ export default function ConversationsPage() {
       </div>
     )
   }
-} 
+}

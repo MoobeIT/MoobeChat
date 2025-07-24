@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { platformOperations, conversationOperations, messageOperations } from '@/lib/database'
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,42 +38,23 @@ export async function POST(request: NextRequest) {
     // Buscar plataforma pela instância
     console.log(`🔍 Buscando plataforma para instância: ${instanceId}`)
     
-    const platform = await prisma.platform.findFirst({
-      where: {
-        OR: [
-          {
-            config: {
-              path: ['instanceName'],
-              equals: instanceId
-            }
-          },
-          {
-            config: {
-              path: ['instanceId'],
-              equals: instanceId
-            }
-          },
-          {
-            config: {
-              path: ['instanceToken'],
-              string_contains: instanceId
-            }
-          }
-        ],
-        type: 'WHATSAPP'
-      },
-      include: {
-        workspace: true
-      }
+    const platforms = await platformOperations.findMany({
+      type: 'WHATSAPP'
+    })
+    
+    const platform = platforms.find(p => {
+      const config = p.config as any
+      return config?.instanceName === instanceId || 
+             config?.instanceId === instanceId || 
+             config?.instanceToken?.includes(instanceId)
     })
 
     if (!platform) {
       console.log(`❌ Plataforma não encontrada para instância: ${instanceId}`)
       
       // Listar plataformas existentes para debug
-      const allPlatforms = await prisma.platform.findMany({
-        where: { type: 'WHATSAPP' },
-        select: { id: true, name: true, config: true }
+      const allPlatforms = await platformOperations.findMany({
+        type: 'WHATSAPP'
       })
       
       console.log('🔍 Plataformas WhatsApp existentes:')
@@ -208,49 +189,43 @@ async function handleMessageEvent(platform: any, messageData: any) {
     // Buscar ou criar conversa
     console.log(`🔍 Buscando conversa para ${phoneNumber} na plataforma ${platform.id}`)
     
-    let conversation = await prisma.conversation.findFirst({
-      where: {
-        platformId: platform.id,
-        externalId: phoneNumber
-      }
+    let conversation = await conversationOperations.findFirst({
+      platform_id: platform.id,
+      external_id: phoneNumber
     })
 
     if (!conversation) {
       console.log('🆕 Criando nova conversa')
-      conversation = await prisma.conversation.create({
-        data: {
-          workspaceId: platform.workspaceId,
-          platformId: platform.id,
-          externalId: phoneNumber,
-          customerPhone: phoneNumber,
-          customerName: senderName,
-          status: 'OPEN',
-          priority: 'MEDIUM',
-          lastMessageAt: new Date(timestamp)
-        }
+      conversation = await conversationOperations.create({
+        workspace_id: platform.workspace_id,
+        platform_id: platform.id,
+        external_id: phoneNumber,
+        customer_phone: phoneNumber,
+        customer_name: senderName,
+        status: 'OPEN',
+        priority: 'MEDIUM',
+        last_message_at: new Date(timestamp).toISOString()
       })
       console.log('✅ Nova conversa criada:', conversation.id)
     } else {
       console.log('📱 Conversa existente encontrada:', conversation.id)
       // Atualizar nome do cliente se mudou
-      if (conversation.customerName !== senderName && senderName !== 'Desconhecido') {
-        await prisma.conversation.update({
-          where: { id: conversation.id },
-          data: { 
-            customerName: senderName,
-            lastMessageAt: new Date(timestamp)
+      if (conversation.customer_name !== senderName && senderName !== 'Desconhecido') {
+        await conversationOperations.update(
+          { id: conversation.id },
+          { 
+            customer_name: senderName,
+            last_message_at: new Date(timestamp).toISOString()
           }
-        })
+        )
         console.log('📝 Nome do cliente atualizado')
       }
     }
 
     // Verificar se a mensagem já existe
-    const existingMessage = await prisma.message.findFirst({
-      where: {
-        externalId: messageId,
-        conversationId: conversation.id
-      }
+    const existingMessage = await messageOperations.findFirst({
+      external_id: messageId,
+      conversation_id: conversation.id
     })
 
     if (existingMessage) {
@@ -269,21 +244,19 @@ async function handleMessageEvent(platform: any, messageData: any) {
       phoneNumber
     })
     
-    const savedMessage = await prisma.message.create({
-      data: {
-        conversationId: conversation.id,
-        externalId: messageId,
-        content,
-        messageType: messageType as any,
-        direction: 'INCOMING',
-        senderName,
-        metadata: {
-          uazApiData: messageData,
-          mediaUrl,
-          timestamp,
-          phoneNumber,
-          platform: 'whatsapp'
-        }
+    const savedMessage = await messageOperations.create({
+      conversation_id: conversation.id,
+      external_id: messageId,
+      content,
+      message_type: messageType as any,
+      direction: 'INCOMING',
+      sender_name: senderName,
+      metadata: {
+        uazApiData: messageData,
+        mediaUrl,
+        timestamp,
+        phoneNumber,
+        platform: 'whatsapp'
       }
     })
 
@@ -310,18 +283,18 @@ async function handleConnectionEvent(platform: any, data: any) {
     }
 
     // Atualizar status da plataforma
-    await prisma.platform.update({
-      where: { id: platform.id },
-      data: {
+    await platformOperations.update(
+      { id: platform.id },
+      {
         config: {
           ...(platform.config as object),
           status: status,
           lastConnectionAt: new Date().toISOString(),
           lastDisconnect: lastDisconnect ? JSON.stringify(lastDisconnect) : null
         },
-        isActive: status === 'connected'
+        is_active: status === 'connected'
       }
-    })
+    )
 
     console.log(`✅ Status de conexão atualizado para: ${status}`)
     
@@ -337,9 +310,9 @@ async function handleQREvent(platform: any, data: any) {
     const qrCode = data.qr || data
     
     // Atualizar QR Code na plataforma
-    await prisma.platform.update({
-      where: { id: platform.id },
-      data: {
+    await platformOperations.update(
+      { id: platform.id },
+      {
         config: {
           ...(platform.config as object),
           qrCode: qrCode,
@@ -347,7 +320,7 @@ async function handleQREvent(platform: any, data: any) {
           lastQRAt: new Date().toISOString()
         }
       }
-    })
+    )
 
     console.log('✅ QR Code atualizado')
     
@@ -364,19 +337,26 @@ async function handleStatusEvent(platform: any, data: any) {
 
     // Atualizar status da mensagem se existir
     if (messageId) {
-      const message = await prisma.message.findFirst({
-        where: {
-          externalId: messageId,
-          conversation: {
-            platformId: platform.id
-          }
-        }
+      const conversations = await conversationOperations.findMany({
+        platform_id: platform.id
       })
+      
+      let message = null
+      for (const conv of conversations) {
+        const msg = await messageOperations.findFirst({
+          external_id: messageId,
+          conversation_id: conv.id
+        })
+        if (msg) {
+          message = msg
+          break
+        }
+      }
 
       if (message) {
-        await prisma.message.update({
-          where: { id: message.id },
-          data: {
+        await messageOperations.update(
+          { id: message.id },
+          {
             metadata: {
               ...(message.metadata as object),
               deliveryStatus: status,
@@ -384,7 +364,7 @@ async function handleStatusEvent(platform: any, data: any) {
               statusUpdatedAt: new Date().toISOString()
             }
           }
-        })
+        )
         
         console.log(`✅ Status da mensagem ${messageId} atualizado para: ${status}`)
       }
@@ -402,4 +382,4 @@ export async function GET() {
     message: 'Webhook UazAPI funcionando',
     timestamp: new Date().toISOString()
   })
-} 
+}

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { platformOperations } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -19,18 +19,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se a plataforma pertence ao usuário
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: platformId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
-    })
+    const platform = await platformOperations.findById(platformId)
+    
+    if (!platform || platform.type !== 'WHATSAPP') {
+      return NextResponse.json(
+        { error: 'Plataforma WhatsApp não encontrada' },
+        { status: 404 }
+      )
+    }
 
     if (!platform) {
       return NextResponse.json({ error: 'Plataforma não encontrada' }, { status: 404 })
@@ -49,15 +45,12 @@ export async function POST(request: NextRequest) {
       await uazApiClient.disconnectInstance(instanceToken)
       
       // Atualizar configuração da plataforma
-      await prisma.platform.update({
-        where: { id: platformId },
-        data: {
-          config: {
-            ...(platform.config as object),
-            status: 'disconnected'
-          },
-          isActive: false
-        }
+      await platformOperations.update(platformId, {
+        config: {
+          ...(platform.config as object),
+          status: 'disconnected'
+        },
+        is_active: false
       })
 
       return NextResponse.json({ 
@@ -69,16 +62,13 @@ export async function POST(request: NextRequest) {
       console.error('Erro na UazAPI:', uazError)
       
       // Atualizar status para erro
-      await prisma.platform.update({
-        where: { id: platformId },
-        data: {
-          config: {
-            ...(platform.config as object),
-            status: 'error',
-            error: uazError.message
-          },
-          isActive: false
-        }
+      await platformOperations.update(platformId, {
+        config: {
+          ...(platform.config as object),
+          status: 'error',
+          error: uazError.message
+        },
+        is_active: false
       })
 
       return NextResponse.json({ 
@@ -94,4 +84,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

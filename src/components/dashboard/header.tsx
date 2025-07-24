@@ -1,70 +1,36 @@
 'use client'
 
-import { Bell, Search, User, LogOut, Settings, Moon, Sun } from 'lucide-react'
+import { Bell, Search, User, LogOut, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSession, signOut } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export function DashboardHeader() {
   const { data: session } = useSession()
   const [showUserMenu, setShowUserMenu] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
-
-  // Verificar se há preferência salva no localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      setDarkMode(true)
-      document.documentElement.classList.add('dark')
-    } else {
-      setDarkMode(false)
-      document.documentElement.classList.remove('dark')
-    }
-  }, [])
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !darkMode
-    setDarkMode(newDarkMode)
-    
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-  }
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' })
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white dark:bg-gray-900 dark:border-gray-700 px-6">
+    <header className="flex h-16 items-center justify-between border-b bg-white dark:bg-gray-900 dark:border-gray-700 px-4 md:px-6">
       <div className="flex items-center space-x-4">
         {/* Logo e Nome do Software */}
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">M</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white hidden sm:block">
             Moobe Chat
           </h1>
         </div>
       </div>
       
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 md:space-x-4">
         {/* Toggle Dark Mode */}
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={toggleDarkMode}
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-        >
-          {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </Button>
+        <ThemeToggle />
 
         {/* Notificações */}
         <Button variant="ghost" size="icon" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
@@ -73,9 +39,9 @@ export function DashboardHeader() {
         
         {/* Menu do Usuário */}
         <div className="relative">
-          <div className="flex items-center space-x-3">
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
+          <div className="flex items-center space-x-2 md:space-x-3">
+            <div className="text-right hidden md:block">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-32">
                 {session?.user?.name || session?.user?.email || 'Usuário'}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -85,7 +51,7 @@ export function DashboardHeader() {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              className="rounded-full text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex-shrink-0"
               onClick={() => setShowUserMenu(!showUserMenu)}
             >
               <User className="h-5 w-5" />
@@ -129,4 +95,4 @@ export function DashboardHeader() {
       )}
     </header>
   )
-} 
+}

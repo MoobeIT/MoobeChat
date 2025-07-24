@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { ensureUserWorkspace } from '@/lib/workspace'
-import { prisma } from '@/lib/prisma'
+import { platformOperations } from '@/lib/database'
+import { randomUUID } from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,11 +31,9 @@ export async function POST(request: NextRequest) {
     )
 
     // Verificar se já existe uma plataforma com esse nome
-    const existingPlatform = await prisma.platform.findFirst({
-      where: {
-        workspaceId: workspace.id,
-        name: instanceName
-      }
+    const existingPlatform = await platformOperations.findFirst({
+      workspace_id: workspace.id,
+      name: instanceName
     })
 
     if (existingPlatform) {
@@ -44,21 +43,23 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar plataforma no banco de dados
-    const platform = await prisma.platform.create({
-      data: {
-        name: instanceName,
-        type: 'WHATSAPP',
-        workspaceId: workspace.id,
-        config: {
-          instanceToken: instanceToken,
-          instanceName: instanceName,
-          webhookUrl: webhookUrl || `${process.env.WEBHOOK_URL}/api/webhooks/uazapi`,
-          connectedAt: new Date().toISOString(),
-          status: 'connected'
-        },
-        isActive: true
-      }
-    })
+    const platformData = {
+      id: randomUUID(),
+      name: instanceName,
+      type: 'WHATSAPP' as const,
+      workspace_id: workspace.id,
+      config: {
+        instanceToken: instanceToken,
+        instanceName: instanceName,
+        webhookUrl: webhookUrl || `${process.env.WEBHOOK_URL}/api/webhooks/uazapi`,
+        connectedAt: new Date().toISOString(),
+        status: 'connected'
+      },
+      is_active: false
+    }
+    
+    console.log('🔍 Dados da plataforma a serem criados:', platformData)
+    const platform = await platformOperations.create(platformData)
 
     console.log('✅ Plataforma criada:', platform.id)
 
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
         id: platform.id,
         name: platform.name,
         type: platform.type,
-        isActive: platform.isActive,
+        isActive: true,
         instanceName: instanceName,
         instanceToken: instanceToken
       }
@@ -83,4 +84,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

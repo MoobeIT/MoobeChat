@@ -124,7 +124,7 @@ export default function AdminUsersPage() {
                       <h4 className="text-sm font-medium text-gray-700">Workspaces:</h4>
                       {user.workspaces.map((ws, index) => (
                         <div key={index} className="flex items-center space-x-2 text-sm">
-                          <span className="text-gray-600">{ws.workspace.name}</span>
+                          <span className="text-gray-600">{ws.workspace?.name || 'Workspace não encontrado'}</span>
                           <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded">
                             {ws.role}
                           </span>
@@ -199,4 +199,4 @@ export default function AdminUsersPage() {
       </div>
     </div>
   )
-} 
+}

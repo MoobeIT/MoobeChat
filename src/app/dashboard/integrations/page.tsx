@@ -388,6 +388,8 @@ export default function IntegrationsPage() {
     }
 
     try {
+      setError('🗑️ Removendo instância...')
+      
       const response = await fetch(`/api/whatsapp/instances?platformId=${platformId}`, {
         method: 'DELETE'
       })
@@ -395,7 +397,16 @@ export default function IntegrationsPage() {
       const data = await response.json()
       
       if (data.success) {
+        setError('✅ Instância removida com sucesso!')
+        
+        // Remover da lista local imediatamente para feedback visual rápido
+        setInstances(prev => prev.filter(instance => instance.id !== platformId))
+        
+        // Recarregar a lista para garantir sincronização
         await loadInstances()
+        
+        // Limpar mensagem de sucesso após 3 segundos
+        setTimeout(() => setError(null), 3000)
       } else {
         setError(data.error || 'Erro ao remover instância')
       }
@@ -446,24 +457,24 @@ export default function IntegrationsPage() {
   }, [])
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold dark:text-white">Integrações</h1>
-          <p className="text-gray-600 dark:text-gray-300">Gerencie suas conexões WhatsApp</p>
+          <h1 className="text-xl md:text-2xl font-bold dark:text-white">Integrações</h1>
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">Gerencie suas conexões WhatsApp</p>
         </div>
       </div>
 
       {/* Card de Conexão Rápida */}
-      <Card className="border-2 border-dashed border-blue-300 bg-blue-50">
+      <Card className="border-2 border-dashed border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20">
         <CardHeader>
-          <CardTitle className="flex items-center text-blue-700">
+          <CardTitle className="flex items-center text-blue-700 dark:text-blue-300">
             <Smartphone className="w-5 h-5 mr-2" />
             Conectar WhatsApp Rapidamente
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-blue-600 mb-4">
+          <p className="text-blue-600 dark:text-blue-300 mb-4">
             Para conectar uma plataforma WhatsApp rapidamente, você precisa dos dados da sua instância UazAPI:
           </p>
           <Button
@@ -497,34 +508,37 @@ export default function IntegrationsPage() {
                 setError(`❌ Erro: ${err.message}`)
               })
             }}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
           >
             <Plus className="w-4 h-4 mr-2" />
             Conectar Plataforma WhatsApp
           </Button>
-          <p className="text-xs text-blue-500 mt-2">
+          <p className="text-xs text-blue-500 dark:text-blue-400 mt-2">
             💡 Você pode encontrar o token no painel da UazAPI em "Instâncias"
           </p>
         </CardContent>
       </Card>
       
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div></div>
-        <div className="flex gap-2">
-          <Button onClick={loadInstances} variant="outline" size="sm">
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={loadInstances} variant="outline" size="sm" className="flex-shrink-0 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
             <RefreshCw className="w-4 h-4 mr-2" />
-            Atualizar
+            <span className="hidden sm:inline">Atualizar</span>
+            <span className="sm:hidden">Atualizar</span>
           </Button>
-          <Button onClick={syncInstances} disabled={syncing} variant="outline" size="sm">
+          <Button onClick={syncInstances} disabled={syncing} variant="outline" size="sm" className="flex-shrink-0 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
             {syncing ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Sincronizando...
+                <span className="hidden sm:inline">Sincronizando...</span>
+                <span className="sm:hidden">Sync...</span>
               </>
             ) : (
               <>
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Sincronizar UazAPI
+                <span className="hidden sm:inline">Sincronizar UazAPI</span>
+                <span className="sm:hidden">Sync</span>
               </>
             )}
           </Button>
@@ -557,12 +571,12 @@ export default function IntegrationsPage() {
             }}
             variant="default"
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
           >
             <Plus className="w-4 h-4 mr-2" />
             Conectar Existente
           </Button>
-                        <Button onClick={testUazApiConfig} disabled={testingConfig} variant="outline" size="sm">
+                        <Button onClick={testUazApiConfig} disabled={testingConfig} variant="outline" size="sm" className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
                 {testingConfig ? (
                   <>
                     <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
@@ -629,7 +643,7 @@ Verifique a aba "Conversas" para ver se a mensagem chegou.`)
                 }}
                 variant="outline"
                 size="sm"
-                className="bg-purple-50 hover:bg-purple-100 text-purple-700"
+                className="bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-800/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-600"
               >
                 <Webhook className="w-4 h-4 mr-2" />
                 Testar Webhook
@@ -683,7 +697,7 @@ Verifique a aba "Conversas" para ver se a mensagem chegou.`)
                 }}
                 variant="outline"
                 size="sm"
-                className="bg-blue-50 hover:bg-blue-100 text-blue-700"
+                className="bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-800/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-600"
               >
                 <Info className="w-4 h-4 mr-2" />
                 Debug Webhook
@@ -744,7 +758,7 @@ ${result.details.messageCreated
                 }}
                 variant="outline"
                 size="sm"
-                className="bg-red-50 hover:bg-red-100 text-red-700"
+                className="bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-800/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-600"
               >
                 <AlertCircle className="w-4 h-4 mr-2" />
                 Teste Forçado
@@ -804,7 +818,7 @@ ${result.details.messageCreated
                 }}
                 variant="outline"
                 size="sm"
-                className="bg-yellow-50 hover:bg-yellow-100 text-yellow-700"
+                className="bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:hover:bg-yellow-800/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-600"
               >
                 <Webhook className="w-4 h-4 mr-2" />
                 Capturar Real
@@ -854,7 +868,7 @@ ${result.details.messageCreated
                 }}
                 variant="outline"
                 size="sm"
-                className="bg-green-50 hover:bg-green-100 text-green-700"
+                className="bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-800/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-600"
               >
                 <Info className="w-4 h-4 mr-2" />
                 Ver Capturas
@@ -922,6 +936,7 @@ ${result.details.messageCreated
             }}
             variant="outline"
             size="sm"
+            className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           >
             <Info className="w-4 h-4 mr-2" />
             Debug Instâncias
@@ -929,33 +944,7 @@ ${result.details.messageCreated
         </div>
       </div>
 
-      {/* Aviso sobre servidor gratuito */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <div className="flex items-start">
-          <div className="flex-shrink-0">
-            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
-              Servidor Gratuito UazAPI
-            </h3>
-            <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
-              <p>
-                <strong>Você está usando o servidor gratuito</strong> do UazAPI. Por limitações de segurança, 
-                algumas funcionalidades como listagem automática de instâncias estão desabilitadas.
-              </p>
-              <p className="mt-2">
-                <strong>Para conectar instâncias existentes:</strong> Use o botão "Conectar Existente" 
-                com o token da sua instância do painel UazAPI (https://free.uazapi.com).
-              </p>
-              <p className="mt-2">
-                <strong>Exemplo:</strong> Se seu painel mostra token "142b1e63-adb7-4b5b-9ed0-40ab6bbb54df", 
-                cole exatamente esse token no "Conectar Existente".
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       {/* Aviso sobre comportamento normal */}
       <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
@@ -982,86 +971,7 @@ ${result.details.messageCreated
         </div>
       </div>
 
-      {/* Card sobre Webhook - Receber Mensagens */}
-      <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-        <div className="flex items-start">
-          <div className="flex-shrink-0">
-            <Webhook className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-orange-800 dark:text-orange-200">
-              🔔 Não está recebendo mensagens de volta?
-            </h3>
-            <div className="mt-2 text-sm text-orange-700 dark:text-orange-300">
-              <p>
-                <strong>Problema comum:</strong> Você consegue enviar mensagens, mas quando as pessoas respondem no WhatsApp, 
-                as respostas não aparecem no sistema.
-              </p>
-              <p className="mt-2">
-                <strong>Causa:</strong> O webhook não está configurado corretamente no painel UazAPI.
-              </p>
-              <p className="mt-2">
-                <strong>Solução:</strong>
-              </p>
-              <ol className="mt-1 ml-4 list-decimal space-y-1">
-                <li>Vá ao painel UazAPI (https://free.uazapi.com)</li>
-                <li>Encontre sua instância conectada</li>
-                <li>Configure o webhook para: <code className="bg-orange-100 px-1 rounded">http://localhost:3000/api/webhooks/uazapi</code></li>
-                <li>Ou clique no botão "Configurar Webhook" da instância conectada abaixo</li>
-                <li>Ou use o botão "Testar Webhook" acima para verificar se está funcionando</li>
-              </ol>
-              <p className="mt-2 text-xs">
-                💡 Se estiver em produção, substitua "localhost:3000" pelo seu domínio real.
-              </p>
-              <div className="mt-3 p-2 bg-orange-100 dark:bg-orange-800 rounded text-xs">
-                <strong>Como testar:</strong> Após configurar o webhook, envie uma mensagem para alguém pelo sistema. 
-                Quando a pessoa responder no WhatsApp, a resposta deve aparecer na aba "Conversas" do sistema.
-              </div>
-              <div className="mt-2 p-2 bg-blue-100 dark:bg-blue-800 rounded text-xs">
-                <strong>🔧 Ferramentas de Debug:</strong><br/>
-                • <strong>Debug Webhook:</strong> Vê se webhooks estão chegando<br/>
-                • <strong>Teste Forçado:</strong> Simula uma mensagem chegando diretamente<br/>
-                • <strong>Testar Webhook:</strong> Testa o processamento completo<br/>
-                • <strong>Capturar Real:</strong> Configura captura de webhooks reais<br/>
-                • <strong>Ver Capturas:</strong> Analisa formato real dos webhooks da UazAPI
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Card sobre Captura de Webhooks Reais */}
-        <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <AlertCircle className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-purple-800 dark:text-purple-200">
-                🎯 Captura de Webhooks Reais - Diagnóstico Avançado
-              </h3>
-              <div className="mt-2 text-sm text-purple-700 dark:text-purple-300">
-                <p>
-                  <strong>Quando usar:</strong> Se o debug funciona mas mensagens reais não chegam, 
-                  pode ser um problema no formato dos dados enviados pela UazAPI.
-                </p>
-                <p className="mt-2">
-                  <strong>Como funciona:</strong>
-                </p>
-                <ol className="mt-1 ml-4 list-decimal space-y-1">
-                  <li>Clique em "Capturar Real" para configurar temporariamente</li>
-                  <li>Envie mensagens reais e peça respostas pelo WhatsApp</li>
-                  <li>Clique em "Ver Capturas" para analisar o formato exato</li>
-                  <li>Compare com nossa documentação para encontrar diferenças</li>
-                  <li>Reconfigure o webhook normal depois</li>
-                </ol>
-                <p className="mt-2 text-xs">
-                  ⚠️ No modo captura, as mensagens não serão processadas normalmente!
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {error && (
         <div className={`border rounded-lg p-4 ${
@@ -1091,32 +1001,35 @@ ${result.details.messageCreated
       {/* Criar nova instância */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Plus className="w-5 h-5 mr-2" />
+          <CardTitle className="flex items-center text-base md:text-lg">
+            <Plus className="w-5 h-5 mr-2 flex-shrink-0" />
             Nova Instância WhatsApp
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Input
               placeholder="Nome da instância"
               value={newInstanceName}
               onChange={(e) => setNewInstanceName(e.target.value)}
-              className="flex-1"
+              className="flex-1 min-w-0"
             />
             <Button 
               onClick={createInstance}
               disabled={creating || !newInstanceName.trim()}
+              className="flex-shrink-0"
             >
               {creating ? (
                 <>
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Criando...
+                  <span className="hidden sm:inline">Criando...</span>
+                  <span className="sm:hidden">Criando...</span>
                 </>
               ) : (
                 <>
                   <Plus className="w-4 h-4 mr-2" />
-                  Criar
+                  <span className="hidden sm:inline">Criar</span>
+                  <span className="sm:hidden">Criar</span>
                 </>
               )}
             </Button>
@@ -1128,42 +1041,43 @@ ${result.details.messageCreated
       {qrCodeData && (
         <Card className="border-2 border-blue-200 dark:border-blue-800 dark:bg-gray-800">
           <CardHeader>
-            <CardTitle className="flex items-center dark:text-white">
-              <QrCode className="w-5 h-5 mr-2" />
+            <CardTitle className="flex items-center dark:text-white text-base md:text-lg">
+              <QrCode className="w-5 h-5 mr-2 flex-shrink-0" />
               Conectar WhatsApp
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <div className="bg-white p-4 rounded-lg inline-block">
+            <div className="bg-white p-2 md:p-4 rounded-lg inline-block max-w-full">
               <img 
                 src={qrCodeData.qrcode} 
                 alt="QR Code WhatsApp" 
-                className="w-64 h-64 mx-auto"
+                className="w-48 h-48 md:w-64 md:h-64 mx-auto max-w-full"
               />
             </div>
             
             <div className="mt-4 space-y-2">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-sm text-gray-600 dark:text-gray-300 px-2">
                 Abra o WhatsApp no seu telefone e escaneie o QR Code acima
               </p>
               
               {qrCodeData.instanceName && (
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate px-2">
                   Instância: {qrCodeData.instanceName}
                 </p>
               )}
               
               <div className="flex items-center justify-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
-                <Clock className="w-3 h-3" />
+                <Clock className="w-3 h-3 flex-shrink-0" />
                 <span>Aguardando conexão...</span>
               </div>
             </div>
             
-            <div className="flex space-x-2 mt-4">
+            <div className="flex flex-col sm:flex-row gap-2 mt-4">
               <Button 
                 onClick={() => checkConnectionStatus(qrCodeData.instanceToken, true)}
                 variant="outline"
                 size="sm"
+                className="flex-1 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Verificar Status
@@ -1172,6 +1086,7 @@ ${result.details.messageCreated
                 onClick={() => setQrCodeData(null)}
                 variant="outline"
                 size="sm"
+                className="flex-1 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Fechar
               </Button>
@@ -1209,7 +1124,7 @@ ${result.details.messageCreated
                 <select
                   value={selectedInstance}
                   onChange={(e) => setSelectedInstance(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                 >
                   <option value="">Selecione uma instância</option>
                   {instances
@@ -1232,7 +1147,7 @@ ${result.details.messageCreated
                 onChange={(e) => setTestMessage(e.target.value)}
                 placeholder="Olá! Esta é uma mensagem de teste do Moobe Chat 👋"
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
               />
             </div>
 
@@ -1242,8 +1157,8 @@ ${result.details.messageCreated
                 disabled={!testPhone || !testMessage || !selectedInstance || testLoading}
                 className={`px-4 py-2 rounded-md font-medium ${
                   !testPhone || !testMessage || !selectedInstance || testLoading
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
+                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700'
                 }`}
               >
                 {testLoading ? '📤 Enviando...' : '📤 Enviar Mensagem'}
@@ -1309,8 +1224,8 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
                 disabled={!testPhone || !selectedInstance || testLoading}
                 className={`px-4 py-2 rounded-md font-medium ${
                   !testPhone || !selectedInstance || testLoading
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-purple-600 text-white hover:bg-purple-700'
+                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                    : 'bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700'
                 }`}
               >
                 {testLoading ? '🧪 Descobrindo...' : '🧪 Descobrir Formato'}
@@ -1348,8 +1263,8 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
                 disabled={!testPhone || testLoading}
                 className={`px-4 py-2 rounded-md font-medium ${
                   !testPhone || testLoading
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-orange-600 text-white hover:bg-orange-700'
+                    ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                    : 'bg-orange-600 text-white hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700'
                 }`}
               >
                 {testLoading ? '🔧 Testando...' : '🔧 Testar Token Painel'}
@@ -1358,12 +1273,12 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
 
             {testResult && (
               <div className={`p-4 rounded-md ${
-                testResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                testResult.success ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
               }`}>
-                <h4 className={`font-medium ${testResult.success ? 'text-green-800' : 'text-red-800'}`}>
+                <h4 className={`font-medium ${testResult.success ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}`}>
                   {testResult.success ? '✅ Mensagem enviada!' : '❌ Erro no envio'}
                 </h4>
-                <pre className={`text-sm mt-2 ${testResult.success ? 'text-green-700' : 'text-red-700'}`}>
+                <pre className={`text-sm mt-2 ${testResult.success ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
                   {JSON.stringify(testResult, null, 2)}
                 </pre>
               </div>
@@ -1388,31 +1303,32 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
         ) : (
           instances.map((instance) => (
             <Card key={instance.id} className="dark:bg-gray-800 dark:border-gray-700">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <Smartphone className="w-5 h-5 text-gray-500" />
-                      <div>
-                        <h3 className="font-medium dark:text-white">{instance.name}</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{instance.workspaceName}</p>
+              <CardContent className="p-4 md:p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 min-w-0">
+                    <div className="flex items-center space-x-2 min-w-0">
+                      <Smartphone className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <h3 className="font-medium dark:text-white truncate">{instance.name}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{instance.workspaceName}</p>
                       </div>
                     </div>
                     <Badge 
                       variant="secondary" 
-                      className={`${getStatusColor(instance.status)} text-white flex items-center`}
+                      className={`${getStatusColor(instance.status)} text-white flex items-center flex-shrink-0`}
                     >
                       {getStatusIcon(instance.status)}
                       <span className="ml-1 capitalize">{instance.status}</span>
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {instance.status === 'disconnected' && (
                       <Button
                         onClick={() => connectInstance(instance.id)}
                         disabled={connecting === instance.id}
                         size="sm"
+                        className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
                       >
                         {connecting === instance.id ? (
                           <>
@@ -1434,6 +1350,7 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
                         disabled={connecting === instance.id}
                         size="sm"
                         variant="outline"
+                        className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                       >
                         {connecting === instance.id ? (
                           <>
@@ -1482,7 +1399,7 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
                           disabled={configuringWebhook === instance.id}
                           variant="outline"
                           size="sm"
-                          className="bg-green-50 hover:bg-green-100 text-green-700"
+                          className="bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-800/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700"
                         >
                           <Webhook className="w-4 h-4 mr-2" />
                           Configurar Webhook
@@ -1493,6 +1410,7 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
                           disabled={checkingWebhook === instance.id}
                           variant="outline"
                           size="sm"
+                          className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
                           {checkingWebhook === instance.id ? (
                             <>
@@ -1513,6 +1431,7 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
                       onClick={() => removeInstance(instance.id)}
                       variant="outline"
                       size="sm"
+                      className="border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -1520,10 +1439,10 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
                 </div>
                 
                 <div className="mt-4 pt-4 border-t dark:border-gray-700">
-                  <div className="grid grid-cols-2 gap-4 text-sm dark:text-gray-300">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm dark:text-gray-300">
+                    <div className="truncate">
                       <span className="font-medium">Instância:</span>
-                      <span className="ml-2">{instance.instanceName || 'N/A'}</span>
+                      <span className="ml-2 break-all">{instance.instanceName || 'N/A'}</span>
                     </div>
                     <div>
                       <span className="font-medium">Criado:</span>
@@ -1538,4 +1457,4 @@ Detalhes: ${JSON.stringify(result.allResults, null, 2)}`)
       </div>
     </div>
   )
-} 
+}

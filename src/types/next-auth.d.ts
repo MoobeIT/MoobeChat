@@ -9,6 +9,7 @@ declare module 'next-auth' {
       image?: string | null
       role?: string | null
       avatar?: string | null
+      workspaceId?: string | null
     }
   }
 
@@ -19,5 +20,6 @@ declare module 'next-auth' {
     image?: string | null
     role?: string | null
     avatar?: string | null
+    workspaceId?: string | null
   }
-} 
+}

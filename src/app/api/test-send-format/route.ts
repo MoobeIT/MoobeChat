@@ -20,27 +20,13 @@ export async function POST(request: NextRequest) {
 
     const formattedPhone = phone.replace(/\D/g, '').startsWith('55') ? phone.replace(/\D/g, '') : `55${phone.replace(/\D/g, '')}`
 
-    // Testar formatos básicos para encontrar o correto
+    // Usar apenas o formato que funciona (Formato 5: number + text)
     const testFormats = [
       {
-        name: 'Formato 1: phone + message',
+        name: 'Formato 5: number + text',
         payload: {
-          phone: formattedPhone,
-          message: message
-        }
-      },
-      {
-        name: 'Formato 2: phone + text',
-        payload: {
-          phone: formattedPhone,
+          number: formattedPhone,
           text: message
-        }
-      },
-      {
-        name: 'Formato 3: phone + body',
-        payload: {
-          phone: formattedPhone,
-          body: message
         }
       }
     ]
@@ -98,4 +84,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { platformOperations } from '@/lib/database'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -20,14 +20,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se a plataforma pertence ao usuário
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: platformId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
+    const platform = await platformOperations.findFirst({
+      id: platformId,
+      workspace: {
+        users: {
+          some: {
+            userId: session.user.id
           }
         }
       }
@@ -54,20 +52,15 @@ export async function POST(request: NextRequest) {
       }
 
       // Atualizar configuração da plataforma
-      await prisma.platform.update({
-        where: {
-          id: platformId
+      await platformOperations.update(platformId, {
+        config: {
+          accessToken,
+          pageId,
+          pageInfo: mockValidation.pageInfo,
+          status: 'connected',
+          connectedAt: new Date().toISOString()
         },
-        data: {
-          config: {
-            accessToken,
-            pageId,
-            pageInfo: mockValidation.pageInfo,
-            status: 'connected',
-            connectedAt: new Date().toISOString()
-          },
-          isActive: true
-        }
+        is_active: true
       })
 
       return NextResponse.json({ 
@@ -80,19 +73,14 @@ export async function POST(request: NextRequest) {
       console.error('Erro no Instagram API:', instagramError)
       
       // Atualizar status para erro
-      await prisma.platform.update({
-        where: {
-          id: platformId
+      await platformOperations.update(platformId, {
+        config: {
+          accessToken: null,
+          pageId: null,
+          status: 'error',
+          error: instagramError.message
         },
-        data: {
-          config: {
-            accessToken: null,
-            pageId: null,
-            status: 'error',
-            error: instagramError.message
-          },
-          isActive: false
-        }
+        is_active: false
       })
 
       return NextResponse.json({ 
@@ -105,4 +93,4 @@ export async function POST(request: NextRequest) {
     console.error('Erro ao conectar Instagram:', error)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
-} 
+}

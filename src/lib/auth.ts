@@ -1,6 +1,6 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { prisma } from './prisma'
+import { supabaseTyped } from './supabase'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,63 +17,68 @@ export const authOptions: NextAuthOptions = {
 
         try {
           // Verificar se o usuário existe
-          let user = await prisma.user.findUnique({
-            where: { email: credentials.email },
-            include: {
-              workspaces: {
-                include: {
-                  workspace: true
-                }
-              }
-            }
-          })
+          const { data: existingUser, error: userError } = await supabaseTyped
+            .from('users')
+            .select(`
+              *,
+              workspace_users(
+                *,
+                workspaces(*)
+              )
+            `)
+            .eq('email', credentials.email)
+            .single()
+
+          let user = existingUser
 
           // Se o usuário não existe, criar um novo (registro automático)
-          if (!user) {
+          if (!user || userError) {
             // Criar usuário
-            user = await prisma.user.create({
-              data: {
+            const { data: newUser, error: createUserError } = await supabaseTyped
+              .from('users')
+              .insert({
                 email: credentials.email,
                 name: credentials.email.split('@')[0], // Nome baseado no email
                 role: 'USER'
-              },
-              include: {
-                workspaces: {
-                  include: {
-                    workspace: true
-                  }
-                }
-              }
-            })
+              })
+              .select()
+              .single()
+
+            if (createUserError || !newUser) {
+              console.error('Erro ao criar usuário:', createUserError)
+              return null
+            }
 
             // Criar workspace padrão para o usuário
-            const workspace = await prisma.workspace.create({
-              data: {
-                name: `Workspace de ${user.name}`,
+            const { data: workspace, error: workspaceError } = await supabaseTyped
+              .from('workspaces')
+              .insert({
+                name: `Workspace de ${newUser.name}`,
                 description: 'Workspace padrão'
-              }
-            })
+              })
+              .select()
+              .single()
+
+            if (workspaceError || !workspace) {
+              console.error('Erro ao criar workspace:', workspaceError)
+              return null
+            }
 
             // Associar usuário ao workspace como OWNER
-            await prisma.workspaceUser.create({
-              data: {
-                userId: user.id,
-                workspaceId: workspace.id,
+            const { error: workspaceUserError } = await supabaseTyped
+              .from('workspace_users')
+              .insert({
+                user_id: newUser.id,
+                workspace_id: workspace.id,
                 role: 'OWNER'
-              }
-            })
+              })
 
-            // Recarregar usuário com workspace
-            user = await prisma.user.findUnique({
-              where: { id: user.id },
-              include: {
-                workspaces: {
-                  include: {
-                    workspace: true
-                  }
-                }
-              }
-            })
+            if (workspaceUserError) {
+              console.error('Erro ao associar usuário ao workspace:', workspaceUserError)
+              return null
+            }
+
+            user = newUser
           }
 
           // Validação simples de senha (em produção, use hash)
@@ -116,4 +121,4 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/signin'
   }
-} 
+}

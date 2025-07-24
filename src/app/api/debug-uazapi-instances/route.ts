@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { platformOperations } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -15,17 +15,9 @@ export async function GET(request: NextRequest) {
     console.log('🔍 DEBUG: Comparando instâncias UazAPI vs Banco de Dados')
 
     // 1. Buscar instâncias do banco de dados
-    const localInstances = await prisma.platform.findMany({
-      where: {
-        type: 'WHATSAPP',
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
+    const localInstances = await platformOperations.findMany({
+      type: 'WHATSAPP',
+      workspace_id: session.user.workspaceId
     })
 
     console.log(`📋 Instâncias no banco: ${localInstances.length}`)
@@ -158,4 +150,4 @@ export async function GET(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

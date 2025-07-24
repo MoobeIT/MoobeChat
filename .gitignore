@@ -31,6 +31,10 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# config files with sensitive data
+config/.env*
+config/*-config-local.json
+
 # vercel
 .vercel
 
@@ -55,10 +59,18 @@ logs/
 # MCP server node_modules
 mcp-server/node_modules/
 
-# Prisma
-.env
+# Prisma (legacy)
 prisma/.env
+prisma/dev.db
 
 # Database
 *.db
-*.sqlite 
+*.sqlite
+
+# Scripts output
+scripts/output/
+scripts/logs/
+
+# Documentation temp files
+docs/temp/
+docs/*.tmp

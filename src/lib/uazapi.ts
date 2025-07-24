@@ -89,8 +89,18 @@ export class UazApiClient {
   }
 
   private formatPhone(phone: string): string {
+    // Verificar se phone não é undefined ou null
+    if (!phone || typeof phone !== 'string') {
+      throw new Error(`Número de telefone inválido: ${phone}. Verifique se o campo customerPhone está preenchido na conversa.`)
+    }
+    
     // Remove caracteres não numéricos
     const cleaned = phone.replace(/\D/g, '')
+    
+    // Verificar se ainda tem conteúdo após limpeza
+    if (!cleaned) {
+      throw new Error(`Número de telefone vazio após limpeza: ${phone}`)
+    }
     
     // Se não começar com 55, adiciona (código do Brasil)
     if (!cleaned.startsWith('55')) {
@@ -375,40 +385,19 @@ export class UazApiClient {
       console.log(`📤 Enviando mensagem de texto para ${formattedPhone}`)
       console.log(`📋 Dados da mensagem:`, { phone: formattedPhone, message: data.message })
       
-      // Formatos diferentes para testar até encontrar o correto
+      // Formatos que funcionam com a API
       const formatsToTry = [
-        // Formato 1: text ao invés de message (comum em muitas APIs)
-        {
-          phone: formattedPhone,
-          text: data.message
-        },
-        // Formato 2: with type field
-        {
-          phone: formattedPhone,
-          text: data.message,
-          type: "text"
-        },
-        // Formato 3: message field (formato atual)
-        {
-          phone: formattedPhone,
-          message: data.message
-        },
-        // Formato 4: body field
-        {
-          phone: formattedPhone,
-          body: data.message
-        },
-        // Formato 5: number instead of phone
+        // Formato 5: number instead of phone (formato principal que funciona)
         {
           number: formattedPhone,
           text: data.message
         },
-        // Formato 6: to field
+        // Formato 6: to field (alternativo)
         {
           to: formattedPhone,
           text: data.message
         },
-        // Formato 7: with messaging_service_sid (alguns APIs)
+        // Formato 7: phone com delay (fallback)
         {
           phone: formattedPhone,
           text: data.message,
@@ -418,11 +407,14 @@ export class UazApiClient {
       
       let lastError: any = null
       
+      const formatNumbers = [5, 6, 7] // Números reais dos formatos
+      
       for (let i = 0; i < formatsToTry.length; i++) {
         const payload = formatsToTry[i]
+        const formatNumber = formatNumbers[i]
         
         try {
-          console.log(`🧪 Testando Formato ${i + 1}:`, payload)
+          console.log(`🧪 Testando Formato ${formatNumber}:`, payload)
           
           const response = await uazApi.post('/send/text', payload, {
             headers: {
@@ -432,7 +424,7 @@ export class UazApiClient {
             }
           })
           
-          console.log(`✅ Formato ${i + 1} funcionou! Mensagem enviada:`, response.data)
+          console.log(`✅ Formato ${formatNumber} funcionou! Mensagem enviada:`, response.data)
           
           // Se chegou aqui, o formato funcionou. Salvar qual formato usar no futuro
           console.log(`💡 Formato bem-sucedido salvo:`, payload)
@@ -440,7 +432,7 @@ export class UazApiClient {
           return response.data
           
         } catch (formatError) {
-          console.log(`❌ Formato ${i + 1} falhou:`)
+          console.log(`❌ Formato ${formatNumber} falhou:`)
           
           if (formatError instanceof AxiosError) {
             const errorData = formatError.response?.data
@@ -639,10 +631,23 @@ export class UazApiClient {
       if (error instanceof AxiosError) {
         console.error('🔍 Status do erro:', error.response?.status)
         console.error('📋 Dados do erro:', error.response?.data)
+        
+        // Detectar servidor gratuito/demo
+        if (error.response?.status === 401 && 
+            error.response?.data?.error?.includes?.('public demo server')) {
+          console.log('🎯 Servidor gratuito detectado - endpoint /instance/all desabilitado')
+          
+          // Criar erro específico para servidor gratuito
+          const demoError = new Error('DEMO_SERVER_LIMITATION')
+          demoError.name = 'DemoServerError'
+          ;(demoError as any).isDemoServer = true
+          ;(demoError as any).originalError = error.response?.data
+          throw demoError
+        }
       }
       throw error
     }
   }
 }
 
-export const uazApiClient = new UazApiClient() 
+export const uazApiClient = new UazApiClient()

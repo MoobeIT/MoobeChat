@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { userOperations, workspaceOperationsExtended } from '@/lib/database'
 import bcrypt from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
@@ -20,9 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se usuário já existe
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    })
+    const existingUser = await userOperations.findByEmail(email)
 
     if (existingUser) {
       return NextResponse.json({ 
@@ -33,78 +31,22 @@ export async function POST(request: NextRequest) {
     // Hash da senha
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Criar usuário em uma transação
-    const result = await prisma.$transaction(async (tx) => {
-      // Criar usuário
-      const user = await tx.user.create({
-        data: {
-          name,
-          email,
-          role: 'USER'
-        }
-      })
-
-      // Nota: Por enquanto não estamos salvando a senha hasheada no banco
-      // porque o schema atual não tem campo password
-      // Em produção, você deve adicionar o campo password na tabela users
-
-      // Criar workspace padrão para o usuário
-      const workspace = await tx.workspace.create({
-        data: {
-          name: `${name} - Workspace`,
-          description: 'Workspace pessoal criado automaticamente'
-        }
-      })
-
-      // Associar usuário ao workspace como OWNER
-      await tx.workspaceUser.create({
-        data: {
-          userId: user.id,
-          workspaceId: workspace.id,
-          role: 'OWNER'
-        }
-      })
-
-      // Criar plataforma WhatsApp padrão
-      const platform = await tx.platform.create({
-        data: {
-          workspaceId: workspace.id,
-          type: 'WHATSAPP',
-          name: 'WhatsApp Principal',
-          config: {},
-          isActive: false
-        }
-      })
-
-      // Criar board Kanban padrão
-      const board = await tx.kanbanBoard.create({
-        data: {
-          workspaceId: workspace.id,
-          name: 'Atendimento',
-          description: 'Board principal de atendimento',
-          isDefault: true
-        }
-      })
-
-      // Criar colunas do Kanban
-      const columns = [
-        { name: 'Novo', color: '#3B82F6', position: 0 },
-        { name: 'Em Andamento', color: '#F59E0B', position: 1 },
-        { name: 'Aguardando', color: '#8B5CF6', position: 2 },
-        { name: 'Resolvido', color: '#10B981', position: 3 }
-      ]
-
-      for (const column of columns) {
-        await tx.kanbanColumn.create({
-          data: {
-            boardId: board.id,
-            ...column
-          }
-        })
-      }
-
-      return { user, workspace, platform, board }
+    // Criar usuário
+    const user = await userOperations.create({
+      email,
+      name,
+      password: hashedPassword
     })
+
+    // Criar workspace padrão e associar usuário
+    const workspace = await workspaceOperationsExtended.createWithUser({
+      name: `Workspace de ${name}`,
+      description: 'Workspace criado automaticamente',
+      userId: user.id,
+      role: 'ADMIN'
+    })
+
+    const result = { user, workspace }
 
     return NextResponse.json({ 
       success: true,
@@ -128,4 +70,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

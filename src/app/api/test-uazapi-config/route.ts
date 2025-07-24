@@ -44,13 +44,28 @@ export async function GET(request: NextRequest) {
       console.error('❌ Erro na listagem de instâncias:', error)
       
       // Verificar se é erro do servidor de demonstração
-      const isDemoServer = error instanceof Error && error.message.includes('public demo server')
+      const isDemoServer = (error as any)?.isDemoServer || 
+                          (error instanceof Error && error.message.includes('DEMO_SERVER_LIMITATION')) ||
+                          (error instanceof Error && error.message.includes('public demo server'))
       
       testResults.tests.listInstances = {
         success: false,
         error: error instanceof Error ? error.message : 'Erro desconhecido',
         isDemoServer,
-        note: isDemoServer ? 'Servidor de demonstração - endpoint /instance/all desabilitado' : undefined
+        note: isDemoServer ? 'Servidor gratuito UazAPI - endpoint /instance/all desabilitado por segurança' : undefined,
+        instructions: isDemoServer ? {
+          title: '🎯 Como usar o servidor gratuito UazAPI',
+          steps: [
+            '1. Acesse https://free.uazapi.com',
+            '2. Vá na seção "Instâncias"',
+            '3. Copie o token da sua instância existente',
+            '4. No MoobeChat, use o botão "Conectar Existente"',
+            '5. Cole o token copiado',
+            '6. Digite um nome para a instância (opcional)',
+            '7. Aguarde a confirmação de conexão'
+          ],
+          example: 'Exemplo de token: 142b1e63-adb7-4b5b-9ed0-40ab6bbb54df'
+        } : undefined
       }
     }
 
@@ -128,4 +143,4 @@ export async function GET(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

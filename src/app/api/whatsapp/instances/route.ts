@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { platformOperations, workspaceOperationsExtended } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
+import { randomUUID } from 'crypto'
 
 // GET - Listar instâncias do usuário
 export async function GET(request: NextRequest) {
@@ -13,25 +14,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
+    // Buscar workspace do usuário
+    const userWorkspaces = await workspaceOperationsExtended.findUserWorkspaces(session.user.id)
+    if (!userWorkspaces || userWorkspaces.length === 0) {
+      return NextResponse.json({ 
+        success: true,
+        instances: [] 
+      })
+    }
+
     // Buscar plataformas WhatsApp do usuário
-    const platforms = await prisma.platform.findMany({
-      where: {
-        type: 'WHATSAPP',
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      },
-      include: {
-        workspace: {
-          select: {
-            name: true
-          }
-        }
-      }
+    const platforms = await platformOperations.findMany({
+      workspace_id: userWorkspaces[0].workspace_id,
+      type: 'WHATSAPP'
     })
 
     // Verificar status das instâncias
@@ -55,13 +50,13 @@ export async function GET(request: NextRequest) {
         return {
           id: platform.id,
           name: platform.name,
-          workspaceName: platform.workspace.name,
+          workspaceName: userWorkspaces[0].workspace?.name || 'Workspace não encontrado',
           status,
-          isActive: platform.isActive,
+          isActive: true,
           instanceToken: instanceToken ? '***' : null,
           instanceName: config?.instanceName || 'N/A',
-          createdAt: platform.createdAt.toISOString(),
-          updatedAt: platform.updatedAt.toISOString()
+          createdAt: platform.created_at,
+          updatedAt: platform.updated_at
         }
       })
     )
@@ -96,35 +91,27 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Buscar o workspace do usuário
-    const workspace = await prisma.workspace.findFirst({
-      where: {
-        users: {
-          some: {
-            userId: session.user.id
-          }
-        }
-      }
-    })
-
-    if (!workspace) {
+    // Buscar workspace do usuário
+    const userWorkspaces = await workspaceOperationsExtended.findUserWorkspaces(session.user.id)
+    if (!userWorkspaces || userWorkspaces.length === 0) {
       return NextResponse.json({ 
         error: 'Workspace não encontrado' 
       }, { status: 404 })
     }
 
+    const workspace = userWorkspaces[0].workspace
+
     // Criar plataforma WhatsApp
-          const platform = await prisma.platform.create({
-        data: {
-          name,
-          type: 'WHATSAPP',
-          workspaceId: workspace.id,
-        config: {
-          status: 'disconnected',
-          createdBy: session.user.id
-        },
-        isActive: false
-      }
+    const platform = await platformOperations.create({
+      id: randomUUID(),
+      name,
+      type: 'WHATSAPP',
+      workspace_id: workspace.id,
+      config: {
+        status: 'disconnected',
+        createdBy: session.user.id
+      },
+      is_active: false
     })
 
     // Inicializar instância na UazAPI
@@ -147,9 +134,9 @@ export async function POST(request: NextRequest) {
         console.log(`🔗 Token recebido, atualizando plataforma no banco...`)
         
         // Atualizar plataforma com token da instância
-        await prisma.platform.update({
-          where: { id: platform.id },
-          data: {
+        await platformOperations.update(
+          { id: platform.id },
+          {
             config: {
               ...(platform.config as object),
               instanceToken: initResult.token,
@@ -158,9 +145,10 @@ export async function POST(request: NextRequest) {
               status: 'initialized',
               uazApiInitialized: true,
               createdAt: new Date().toISOString()
-            }
+            },
+            is_active: true
           }
-        })
+        )
         
         console.log(`✅ Plataforma atualizada com sucesso`)
         
@@ -170,9 +158,9 @@ export async function POST(request: NextRequest) {
           console.log(`🔍 Status da instância após criação:`, instanceStatus)
           
           // Atualizar status no banco
-          await prisma.platform.update({
-            where: { id: platform.id },
-            data: {
+          await platformOperations.update(
+            { id: platform.id },
+            {
               config: {
                 ...(platform.config as object),
                 instanceToken: initResult.token,
@@ -181,9 +169,10 @@ export async function POST(request: NextRequest) {
                 status: instanceStatus.status,
                 uazApiInitialized: true,
                 lastSyncAt: new Date().toISOString()
-              }
+              },
+              is_active: instanceStatus.status === 'connected'
             }
-          })
+          )
           
           console.log(`✅ Status sincronizado: ${instanceStatus.status}`)
           
@@ -220,9 +209,7 @@ export async function POST(request: NextRequest) {
       }
       
       // Remover plataforma se falhou na inicialização
-      await prisma.platform.delete({
-        where: { id: platform.id }
-      })
+      await platformOperations.delete({ id: platform.id })
       
       return NextResponse.json({ 
         error: 'Erro ao inicializar instância WhatsApp no UazAPI',
@@ -260,18 +247,18 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Buscar workspace do usuário
+    const userWorkspaces = await workspaceOperationsExtended.findUserWorkspaces(session.user.id)
+    if (!userWorkspaces || userWorkspaces.length === 0) {
+      return NextResponse.json({ 
+        error: 'Workspace não encontrado' 
+      }, { status: 404 })
+    }
+
     // Verificar se a plataforma pertence ao usuário
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: platformId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
+    const platform = await platformOperations.findFirst({
+      id: platformId,
+      workspace_id: userWorkspaces[0].workspace_id
     })
 
     if (!platform) {
@@ -294,9 +281,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Remover plataforma do banco
-    await prisma.platform.delete({
-      where: { id: platformId }
-    })
+    await platformOperations.delete({ id: platformId })
 
     return NextResponse.json({ 
       success: true,
@@ -309,4 +294,4 @@ export async function DELETE(request: NextRequest) {
       error: 'Erro interno do servidor' 
     }, { status: 500 })
   }
-} 
+}

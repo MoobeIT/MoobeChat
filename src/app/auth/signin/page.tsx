@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { PasswordInput } from '@/components/ui/password-input'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
@@ -50,51 +53,59 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 relative">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
+      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <span className="text-3xl">💬</span>
-            <span className="text-2xl font-bold text-gray-900">Moobe Chat</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">Moobe Chat</span>
           </div>
-          <p className="text-gray-600">Faça login para acessar sua central</p>
+          <p className="text-gray-600 dark:text-gray-400">Faça login para acessar sua central</p>
         </div>
 
         {/* Formulário */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Email
             </label>
             <input
               id="email"
+              name="email"
               type="email"
+              autoComplete="email"
+              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               placeholder="seu@email.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Senha
             </label>
-            <input
+            <PasswordInput
               id="password"
-              type="password"
+              name="password"
+              autoComplete="current-password"
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               placeholder="Sua senha"
             />
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-md text-sm">
               {error}
             </div>
           )}
@@ -110,11 +121,11 @@ export default function SignInPage() {
 
         {/* Link para registro */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Não tem uma conta?{' '}
             <Link 
               href="/auth/register" 
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
             >
               Criar conta
             </Link>
@@ -125,11 +136,11 @@ export default function SignInPage() {
 
         {/* Link para voltar */}
         <div className="mt-6 text-center">
-          <a href="/" className="text-sm text-blue-600 hover:text-blue-800">
+          <Link href="/" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
             ← Voltar ao site principal
-          </a>
+          </Link>
         </div>
       </div>
     </div>
   )
-} 
+}

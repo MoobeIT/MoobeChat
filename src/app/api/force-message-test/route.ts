@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { platformOperations, messageOperations } from '@/lib/database'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -20,18 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar plataforma
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: platformId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
-    })
+    const platform = await platformOperations.findById(platformId)
 
     if (!platform) {
       return NextResponse.json({ error: 'Plataforma não encontrada' }, { status: 404 })
@@ -88,18 +77,7 @@ export async function POST(request: NextRequest) {
     console.log('✅ Resposta do webhook:', webhookResult)
 
     // Verificar se a mensagem foi criada
-    const createdMessage = await prisma.message.findFirst({
-      where: {
-        externalId: `FORCE_TEST_${Date.now()}`,
-        conversation: {
-          platformId: platform.id,
-          externalId: phone
-        }
-      },
-      include: {
-        conversation: true
-      }
-    })
+    const createdMessage = await messageOperations.findByContent(message, platformId)
 
     return NextResponse.json({
       success: true,
@@ -123,4 +101,4 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}

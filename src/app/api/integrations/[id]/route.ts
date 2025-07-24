@@ -1,31 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { platformOperations } from '@/lib/database'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: (await params).id,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
-    })
+    const platform = await platformOperations.findById((await params).id)
 
     if (!platform) {
       return NextResponse.json({ error: 'Integração não encontrada' }, { status: 404 })
@@ -44,7 +33,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -52,32 +41,16 @@ export async function PUT(
 
     const { name, config, isActive } = await request.json()
 
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: (await params).id,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
-    })
+    const platform = await platformOperations.findById((await params).id)
 
     if (!platform) {
       return NextResponse.json({ error: 'Integração não encontrada' }, { status: 404 })
     }
 
-    const updatedPlatform = await prisma.platform.update({
-      where: {
-        id: (await params).id
-      },
-      data: {
-        ...(name && { name }),
-        ...(config && { config }),
-        ...(isActive !== undefined && { isActive })
-      }
+    const updatedPlatform = await platformOperations.update((await params).id, {
+      ...(name && { name }),
+      ...(config && { config }),
+      ...(isActive !== undefined && { isActive })
     })
 
     return NextResponse.json({ platform: updatedPlatform })
@@ -93,34 +66,19 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: (await params).id,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
-    })
+    const platform = await platformOperations.findById((await params).id)
 
     if (!platform) {
       return NextResponse.json({ error: 'Integração não encontrada' }, { status: 404 })
     }
 
-    await prisma.platform.delete({
-      where: {
-        id: (await params).id
-      }
-    })
+    await platformOperations.delete((await params).id)
 
     return NextResponse.json({ success: true })
     
@@ -128,4 +86,4 @@ export async function DELETE(
     console.error('Erro ao deletar integração:', error)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
-} 
+}

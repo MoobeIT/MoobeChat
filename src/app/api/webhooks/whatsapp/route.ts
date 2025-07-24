@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { conversationOperations, messageOperations, platformOperations, createKanbanCardForConversation } from '@/lib/database'
+import { uazApiClient } from '@/lib/uazapi'
 
 // Interface para webhook (formato WhatsApp)
 interface WebhookMessage {
@@ -38,8 +39,20 @@ async function processMessage(webhookData: WebhookMessage) {
   const { instanceName, data } = webhookData
   const { key, message, messageTimestamp, pushName } = data
 
+  // Validações básicas
+  if (!instanceName || !key?.remoteJid || !key?.id) {
+    console.log('⚠️ Dados do webhook inválidos, ignorando')
+    return
+  }
+
   // Extrair número do contato (remover @s.whatsapp.net)
   const phoneNumber = key.remoteJid.split('@')[0]
+  
+  // Ignorar mensagens de grupos por enquanto
+  if (key.remoteJid.includes('@g.us')) {
+    console.log('⏭️ Mensagem de grupo ignorada')
+    return
+  }
   
   // Verificar se é mensagem de saída (enviada por nós)
   const isOutgoing = key.fromMe
@@ -69,118 +82,102 @@ async function processMessage(webhookData: WebhookMessage) {
   }
 
   try {
-    // Buscar ou criar plataforma
-    let platform = await prisma.platform.findFirst({
-      where: {
-        type: 'WHATSAPP',
-        name: instanceName
-      }
+    // Buscar plataforma por instanceName
+    let platform = await platformOperations.findFirst({
+      type: 'WHATSAPP',
+      'config->instanceName': instanceName
     })
 
     if (!platform) {
-      // Criar workspace padrão se não existir
-      let workspace = await prisma.workspace.findFirst()
-      
-      if (!workspace) {
-        workspace = await prisma.workspace.create({
-          data: {
-            name: 'Workspace Padrão',
-            description: 'Workspace criado automaticamente'
-          }
-        })
-      }
-
-      // Criar plataforma
-      platform = await prisma.platform.create({
-        data: {
-          workspaceId: workspace.id,
-          type: 'WHATSAPP',
-          name: instanceName,
-          config: { instanceName }
-        }
-      })
+      console.log(`⚠️ Plataforma não encontrada para instância: ${instanceName}`)
+      return // Não processar se não há plataforma configurada
     }
 
-    // Buscar ou criar conversa
-    let conversation = await prisma.conversation.findUnique({
-      where: {
-        platformId_externalId: {
-          platformId: platform.id,
-          externalId: phoneNumber
-        }
-      }
+    // Buscar conversa existente
+    let conversation = await conversationOperations.findFirst({
+      platform_id: platform.id,
+      external_id: phoneNumber
     })
 
     if (!conversation) {
-      conversation = await prisma.conversation.create({
-        data: {
-          workspaceId: platform.workspaceId,
-          platformId: platform.id,
-          externalId: phoneNumber,
-          customerName: pushName || phoneNumber,
-          customerPhone: phoneNumber,
-          status: 'OPEN',
-          priority: 'MEDIUM'
-        }
+      console.log(`🆕 Criando nova conversa para ${phoneNumber}`)
+      conversation = await conversationOperations.create({
+        workspace_id: platform.workspace_id,
+        platform_id: platform.id,
+        external_id: phoneNumber,
+        customer_name: pushName || phoneNumber,
+        customer_phone: phoneNumber,
+        status: 'OPEN',
+        priority: 'MEDIUM',
+        last_message_at: new Date(messageTimestamp * 1000).toISOString()
       })
 
-      // Criar card no Kanban (coluna "Novas")
-      const kanbanBoard = await prisma.kanbanBoard.findFirst({
-        where: { workspaceId: platform.workspaceId },
-        include: { columns: true }
-      })
-
-      if (kanbanBoard) {
-        const newColumn = kanbanBoard.columns.find(col => 
-          col.name.toLowerCase().includes('nova') || 
-          col.name.toLowerCase().includes('new')
-        ) || kanbanBoard.columns[0]
-
-        if (newColumn) {
-          const cardsCount = await prisma.kanbanCard.count({
-            where: { columnId: newColumn.id }
-          })
-
-          await prisma.kanbanCard.create({
-            data: {
-              columnId: newColumn.id,
-              conversationId: conversation.id,
-              position: cardsCount
-            }
-          })
-        }
+      // Criar card no Kanban automaticamente para nova conversa
+      try {
+        await createKanbanCardForConversation(conversation.id, platform.workspace_id)
+        console.log(`✅ Card do Kanban criado para nova conversa ${conversation.id} via webhook`)
+      } catch (error) {
+        console.error('❌ Erro ao criar card no Kanban via webhook:', error)
+        // Não falhar o processamento da mensagem se o card falhar
+      }
+    } else {
+      console.log(`📱 Conversa existente encontrada: ${conversation.id}`)
+      // Atualizar nome do cliente se mudou
+      if (conversation.customer_name !== pushName && pushName && pushName !== 'Desconhecido') {
+        await conversationOperations.update(
+          { id: conversation.id },
+          { 
+            customer_name: pushName,
+            last_message_at: new Date(messageTimestamp * 1000).toISOString()
+          }
+        )
+        console.log('📝 Nome do cliente atualizado')
       }
     }
 
+    // Verificar se a mensagem já existe
+    const existingMessage = await messageOperations.findFirst({
+      external_id: key.id,
+      conversation_id: conversation.id
+    })
+
+    if (existingMessage) {
+      console.log(`⏭️ Mensagem já existe, ignorando: ${key.id}`)
+      return
+    }
+
     // Criar mensagem
-    await prisma.message.create({
-      data: {
-        conversationId: conversation.id,
-        externalId: key.id,
-        content: messageContent,
-        messageType: messageType as any,
-        direction: isOutgoing ? 'OUTGOING' : 'INCOMING',
-        senderName: isOutgoing ? 'Você' : (pushName || phoneNumber),
-        metadata: {
-          timestamp: messageTimestamp,
-          rawMessage: message
+    await messageOperations.create({
+      conversation_id: conversation.id,
+      external_id: key.id,
+      content: messageContent,
+      message_type: messageType as any,
+      direction: isOutgoing ? 'OUTGOING' : 'INCOMING',
+      sender_name: isOutgoing ? 'Você' : (pushName || phoneNumber),
+      metadata: {
+        timestamp: messageTimestamp,
+        rawMessage: message,
+        phoneNumber,
+        platform: 'whatsapp'
+      }
+    })
+
+    // Atualizar última mensagem da conversa apenas se não foi atualizada acima
+    if (conversation && !isOutgoing) {
+      await conversationOperations.update(
+        { id: conversation.id },
+        {
+          last_message_at: new Date(messageTimestamp * 1000).toISOString(),
+          updated_at: new Date().toISOString()
         }
-      }
-    })
+      )
+    }
 
-    // Atualizar última mensagem da conversa
-    await prisma.conversation.update({
-      where: { id: conversation.id },
-      data: { 
-        lastMessageAt: new Date(messageTimestamp * 1000),
-        updatedAt: new Date()
-      }
-    })
-
-    console.log(`Mensagem processada: ${messageContent}`)
+    console.log(`✅ Mensagem processada: ${messageContent.substring(0, 50)}${messageContent.length > 50 ? '...' : ''}`)
+    console.log(`📊 Conversa: ${conversation.id} | Direção: ${isOutgoing ? 'SAÍDA' : 'ENTRADA'} | Tipo: ${messageType}`)
     
   } catch (error) {
     console.error('Erro ao processar mensagem:', error)
     throw error
   }
-} 
+}

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { platformOperations } from '@/lib/database'
 import { ensureUserWorkspace } from '@/lib/workspace'
+import { randomUUID } from 'crypto'
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,16 +21,14 @@ export async function GET(request: NextRequest) {
     )
 
     // Buscar todas as plataformas/integrações
-    const platforms = await prisma.platform.findMany({
-      where: {
-        workspaceId: workspace.id
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
+    const platforms = await platformOperations.findMany({
+      workspace_id: workspace.id
     })
 
-    return NextResponse.json({ platforms })
+    // Filtrar apenas plataformas ativas
+    const activePlatforms = platforms.filter(p => p.is_active)
+
+    return NextResponse.json({ platforms: activePlatforms })
     
   } catch (error) {
     console.error('Erro ao buscar integrações:', error)
@@ -59,15 +58,27 @@ export async function POST(request: NextRequest) {
       session.user.name || undefined
     )
 
+    // Verificar se já existe uma plataforma com esse nome no workspace
+    const allPlatforms = await platformOperations.findMany({
+      workspace_id: workspace.id
+    })
+    
+    const existingPlatform = allPlatforms.find(p => p.name === name)
+
+    if (existingPlatform) {
+      return NextResponse.json({ 
+        error: 'Já existe uma plataforma com este nome' 
+      }, { status: 409 })
+    }
+
     // Criar nova integração
-    const platform = await prisma.platform.create({
-      data: {
-        workspaceId: workspace.id,
-        type: type.toUpperCase(),
-        name,
-        config: config || {},
-        isActive: true
-      }
+    const platform = await platformOperations.create({
+      id: randomUUID(),
+      workspace_id: workspace.id,
+      type: type.toUpperCase(),
+      name,
+      config: config || {},
+      is_active: true
     })
 
     return NextResponse.json({ platform })
@@ -76,4 +87,4 @@ export async function POST(request: NextRequest) {
     console.error('Erro ao criar integração:', error)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
-} 
+}

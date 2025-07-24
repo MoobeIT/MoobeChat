@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { messageOperations, conversationOperations } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
 
 export async function GET(
@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -18,32 +18,22 @@ export async function GET(
     const conversationId = (await params).id
 
     // Verificar se a conversa pertence ao workspace do usuário
-    const conversation = await prisma.conversation.findFirst({
-      where: {
-        id: conversationId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      },
-      include: {
-        platform: true
-      }
-    })
+    const conversation = await conversationOperations.findById(conversationId)
 
     if (!conversation) {
       return NextResponse.json({ error: 'Conversa não encontrada' }, { status: 404 })
     }
 
+    console.log('🔍 Debug - Conversa encontrada:', {
+      id: conversation.id,
+      customer_phone: conversation.customer_phone,
+      customer_name: conversation.customer_name,
+      platform: conversation.platform
+    })
+
     // Buscar mensagens
-    const messages = await prisma.message.findMany({
-      where: {
-        conversationId: conversationId
-      },
-      orderBy: { createdAt: 'asc' }
+    const messages = await messageOperations.findMany({
+      conversation_id: conversationId
     })
 
     // Formatar mensagens para o frontend
@@ -51,8 +41,8 @@ export async function GET(
       id: msg.id,
       content: msg.content,
       sender: msg.direction === 'OUTGOING' ? 'USER' : 'CUSTOMER',
-      timestamp: msg.createdAt.toISOString(),
-      type: msg.messageType
+      timestamp: msg.created_at,
+      type: msg.message_type
     }))
 
     return NextResponse.json({ messages: formattedMessages, conversation })
@@ -68,7 +58,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -78,21 +68,7 @@ export async function POST(
     const { content, messageType = 'TEXT' } = await request.json()
 
     // Verificar se a conversa pertence ao workspace do usuário
-    const conversation = await prisma.conversation.findFirst({
-      where: {
-        id: conversationId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      },
-      include: {
-        platform: true
-      }
-    })
+    const conversation = await conversationOperations.findById(conversationId)
 
     if (!conversation) {
       return NextResponse.json({ error: 'Conversa não encontrada' }, { status: 404 })
@@ -100,12 +76,24 @@ export async function POST(
 
     // Enviar mensagem via UazAPI
     try {
-      if (conversation.platform.type === 'WHATSAPP') {
+      if (conversation.platform && conversation.platform.type === 'WHATSAPP') {
+        console.log('🔍 Debug - Dados da conversa para envio:', {
+          id: conversation.id,
+          customerPhone: conversation.customer_phone,
+          customerName: conversation.customer_name,
+          platformType: conversation.platform.type
+        })
+        
         const config = conversation.platform.config as any
         const token = config?.instanceToken
+        
+        if (!conversation.customer_phone) {
+          throw new Error('Número de telefone do cliente não encontrado na conversa')
+        }
+        
         if (token) {
           await uazApiClient.sendTextMessage(token, {
-            phone: conversation.customerPhone!,
+            phone: conversation.customer_phone,
             message: content
           })
         }
@@ -116,32 +104,30 @@ export async function POST(
     }
 
     // Salvar mensagem no banco
-    const message = await prisma.message.create({
-      data: {
-        conversationId: conversationId,
-        content: content,
-        messageType: messageType,
-        direction: 'OUTGOING',
-        senderName: session.user.name || session.user.email || 'Você'
-      }
+    const message = await messageOperations.create({
+      conversation_id: conversationId,
+      content: content,
+      message_type: messageType,
+      direction: 'OUTGOING',
+      sender_name: session.user.name || session.user.email || 'Você'
     })
 
     // Atualizar última mensagem da conversa
-    await prisma.conversation.update({
-      where: { id: conversationId },
-      data: { 
-        lastMessageAt: new Date(),
-        updatedAt: new Date()
+    await conversationOperations.update(
+      { id: conversationId },
+      {
+        last_message_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
-    })
+    )
 
     // Formatar mensagem para o frontend
     const formattedMessage = {
       id: message.id,
       content: message.content,
       sender: message.direction === 'OUTGOING' ? 'USER' : 'CUSTOMER',
-      timestamp: message.createdAt.toISOString(),
-      type: message.messageType
+      timestamp: message.created_at,
+      type: message.message_type
     }
 
     return NextResponse.json({ message: formattedMessage })
@@ -150,4 +136,4 @@ export async function POST(
     console.error('Erro ao enviar mensagem:', error)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
-} 
+}

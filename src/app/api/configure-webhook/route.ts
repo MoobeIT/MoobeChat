@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { getServerSession } from 'next-auth/next'
+import { authOptionsSupabase } from '@/lib/auth-supabase'
+import { platformOperations } from '@/lib/database'
 import { uazApiClient } from '@/lib/uazapi'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptionsSupabase)
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -19,17 +19,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar plataforma
-    const platform = await prisma.platform.findFirst({
-      where: {
-        id: platformId,
-        workspace: {
-          users: {
-            some: {
-              userId: session.user.id
-            }
-          }
-        }
-      }
+    const platform = await platformOperations.findFirst({
+      id: platformId,
+      workspace_id: session.user.workspaceId
     })
 
     if (!platform) {
@@ -65,15 +57,12 @@ export async function POST(request: NextRequest) {
     await uazApiClient.setWebhook(instanceToken, webhookUrl)
 
     // Atualizar configuração da plataforma
-    await prisma.platform.update({
-      where: { id: platform.id },
-      data: {
-        config: {
-          ...config,
-          webhookUrl,
-          webhookConfigured: true,
-          webhookConfiguredAt: new Date().toISOString()
-        }
+    await platformOperations.update(platform.id, {
+      config: {
+        ...config,
+        webhookUrl,
+        webhookConfigured: true,
+        webhookConfiguredAt: new Date().toISOString()
       }
     })
 
@@ -97,4 +86,4 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Erro desconhecido'
     }, { status: 500 })
   }
-} 
+}
