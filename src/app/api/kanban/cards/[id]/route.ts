@@ -6,7 +6,7 @@ import { kanbanCardOperations } from '@/lib/database'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -15,7 +15,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const cardId = params.id
+    const cardId = (await params).id
 
     if (!cardId) {
       return NextResponse.json({ error: 'ID do card é obrigatório' }, { status: 400 })

@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
         return {
           id: platform.id,
           name: platform.name,
-          workspaceName: userWorkspaces[0].workspace?.name || 'Workspace não encontrado',
+          workspaceName: (userWorkspaces[0] as any)?.workspace?.name || 'Workspace não encontrado',
           status,
           isActive: true,
           instanceToken: instanceToken ? '***' : null,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       id: randomUUID(),
       name,
       type: 'WHATSAPP',
-      workspace_id: workspace.id,
+      workspace_id: (workspace as any)?.id || userWorkspaces[0].workspace_id,
       config: {
         status: 'disconnected',
         createdBy: session.user.id

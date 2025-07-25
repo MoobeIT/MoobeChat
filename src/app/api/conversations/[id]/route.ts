@@ -1,11 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptionsSupabase } from '@/lib/auth-supabase'
-import { conversationOperations, workspaceOperationsExtended, messageOperations, kanbanOperations } from '@/lib/database'
+import { conversationOperations, workspaceOperationsExtended, messageOperations, kanbanOperations, platformOperations } from '@/lib/database'
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptionsSupabase)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    }
+
+    const conversationId = (await params).id
+
+    // Verificar se a conversa pertence ao usuário
+    const userWorkspaces = await workspaceOperationsExtended.findUserWorkspaces(session.user.id)
+    
+    if (!userWorkspaces || userWorkspaces.length === 0) {
+      return NextResponse.json({ error: 'Workspace não encontrado' }, { status: 404 })
+    }
+
+    const conversation = await conversationOperations.findById(conversationId)
+
+    if (!conversation) {
+      return NextResponse.json({ error: 'Conversa não encontrada' }, { status: 404 })
+    }
+
+    // Verificar se a conversa pertence ao workspace do usuário
+    const workspaceId = (userWorkspaces[0]?.workspace as any)?.id || userWorkspaces[0]?.workspace_id
+    if (conversation.workspace_id !== workspaceId) {
+      return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
+    }
+
+    // Buscar plataforma
+    const platform = await platformOperations.findFirst({ id: conversation.platform_id })
+
+    // Formatar resposta
+    const formattedConversation = {
+      id: conversation.id,
+      customerName: conversation.customer_name,
+      customerPhone: conversation.customer_phone,
+      customerEmail: conversation.customer_email,
+      status: conversation.status,
+      priority: conversation.priority,
+      createdAt: conversation.created_at,
+      lastMessageAt: conversation.last_message_at,
+      platform: platform ? {
+        id: platform.id,
+        type: platform.type,
+        name: platform.name
+      } : {
+        id: '',
+        type: 'UNKNOWN',
+        name: 'Plataforma não encontrada'
+      }
+    }
+
+    return NextResponse.json({ conversation: formattedConversation })
+  } catch (error) {
+    console.error('Erro ao buscar conversa:', error)
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
+  }
+}
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -67,7 +130,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -92,7 +155,7 @@ export async function DELETE(
     }
 
     // Verificar se a conversa pertence ao workspace do usuário
-    const workspaceId = userWorkspaces[0].workspace?.id || userWorkspaces[0].workspace_id
+    const workspaceId = (userWorkspaces[0]?.workspace as any)?.id || userWorkspaces[0]?.workspace_id
     if (conversation.workspace_id !== workspaceId) {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
     }

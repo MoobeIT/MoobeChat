@@ -5,7 +5,7 @@ import { contactOperations, platformOperations } from '@/lib/database'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -32,7 +32,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -42,7 +42,7 @@ export async function PUT(
     }
 
     const contactId = (await params).id
-    const { name, phone, email, notes, tags, platformId } = await request.json()
+    const { name, phone, email, platformId } = await request.json()
 
     if (!name || !phone || !platformId) {
       return NextResponse.json({ error: 'Nome, telefone e plataforma são obrigatórios' }, { status: 400 })
@@ -63,19 +63,25 @@ export async function PUT(
     }
 
     // Verificar se já existe outro contato com o mesmo telefone na mesma plataforma
-    const duplicateContact = await contactOperations.findByPhoneExcluding(phone, platform.workspace_id, contactId)
+    const existingContacts = await contactOperations.findMany({
+      workspace_id: platform.workspace_id
+    })
+    
+    const duplicateContact = existingContacts.find(contact => 
+      contact.phone === phone && 
+      contact.platform_id === platformId && 
+      contact.id !== contactId
+    )
 
     if (duplicateContact) {
       return NextResponse.json({ error: 'Já existe outro contato com este telefone nesta plataforma' }, { status: 409 })
     }
 
-    const contact = await contactOperations.update(contactId, {
+    const contact = await contactOperations.update({ id: contactId }, {
       name,
       phone,
       email: email || null,
-      notes: notes || null,
-      tags: tags || [],
-      platformId: platformId
+      platform_id: platformId
     })
 
     return NextResponse.json({ contact })
@@ -88,7 +94,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -106,7 +112,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Contato não encontrado' }, { status: 404 })
     }
 
-    await contactOperations.delete(contactId)
+    await contactOperations.delete({ id: contactId })
 
     return NextResponse.json({ success: true })
     

@@ -267,6 +267,90 @@ export type Database = {
           inserted_at?: string
         }
       }
+      kanban_boards: {
+        Row: {
+          id: string
+          name: string
+          workspace_id: string
+          is_default: boolean | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          workspace_id: string
+          is_default?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          workspace_id?: string
+          is_default?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      kanban_columns: {
+        Row: {
+          id: string
+          name: string
+          position: number
+          board_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          position?: number
+          board_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          position?: number
+          board_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      kanban_cards: {
+        Row: {
+          id: string
+          title: string
+          description: string | null
+          position: number
+          column_id: string
+          conversation_id: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description?: string | null
+          position?: number
+          column_id: string
+          conversation_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string | null
+          position?: number
+          column_id?: string
+          conversation_id?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }

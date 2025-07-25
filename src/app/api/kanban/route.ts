@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     // Extrair o workspace do objeto retornado
     const workspace = workspaceData.workspace || workspaceData
-    const workspaceId = workspace.id || workspaceData.workspace_id
+    const workspaceId = (workspace as any)?.id || workspaceData.workspace_id
 
     if (!workspaceId) {
       console.error('Workspace ID não encontrado:', { workspaceData, workspace })
@@ -33,10 +33,9 @@ export async function GET(request: NextRequest) {
 
     if (!board) {
       // Criar board padrão com colunas
-      board = await kanbanBoardOperationsExtended.create({
+      const board = await kanbanBoardOperationsExtended.create({
         workspace_id: workspaceId,
         name: 'Atendimento',
-        description: 'Board principal de atendimento',
         is_default: true
       })
     }

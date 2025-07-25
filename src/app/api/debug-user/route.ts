@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { authOptionsSupabase } from '@/lib/auth-supabase'
-import { userOperations } from '@/lib/database'
+import { userOperations, db } from '@/lib/database'
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,10 +20,10 @@ export async function GET(request: NextRequest) {
     const userInDb = await userOperations.findById(session.user.id)
 
     // Verificar se existe pelo email
-    const userByEmail = await userOperations.findByEmail(session.user.email)
+    const userByEmail = session.user.email ? await userOperations.findByEmail(session.user.email) : null
 
     // Listar todos os usuários para debug
-    const allUsers = await userOperations.findMany()
+    const allUsers = await db.user.findMany()
 
     return NextResponse.json({
       session: {

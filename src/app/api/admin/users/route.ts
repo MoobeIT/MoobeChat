@@ -1,24 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { userOperations } from '@/lib/database'
+import { db } from '@/lib/database'
+import { supabaseTyped } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   try {
-    // Buscar todos os usuários com seus workspaces
-    const users = await userOperations.findMany()
+    // Buscar todos os usuários
+    const users = await db.user.findMany()
+
+    // Para cada usuário, buscar seus workspaces
+    const usersWithWorkspaces = await Promise.all(
+      users.map(async (user) => {
+        const { data: workspaceUsers, error } = await supabaseTyped
+          .from('workspace_users')
+          .select(`
+            role,
+            workspace:workspaces(
+              id,
+              name,
+              description
+            )
+          `)
+          .eq('user_id', user.id)
+
+        const workspaces = workspaceUsers?.map((wu: any) => ({
+          role: wu.role,
+          workspace: wu.workspace
+        })) || []
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          createdAt: user.created_at,
+          workspaces
+        }
+      })
+    )
 
     return NextResponse.json({
       success: true,
-      users: users.map(user => ({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt,
-        workspaces: user.workspaces.map(ws => ({
-          role: ws.role,
-          workspace: ws.workspace
-        }))
-      }))
+      users: usersWithWorkspaces
     })
 
   } catch (error) {
@@ -42,7 +64,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Verificar se usuário existe
-    const user = await userOperations.findById(userId)
+    const user = await db.user.findById(userId)
 
     if (!user) {
       return NextResponse.json({ 
@@ -51,7 +73,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Deletar usuário (cascade irá deletar relacionamentos)
-    await userOperations.delete(userId)
+    await db.user.delete({ id: userId })
 
     return NextResponse.json({
       success: true,

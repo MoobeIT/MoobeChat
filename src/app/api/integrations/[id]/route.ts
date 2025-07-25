@@ -5,7 +5,7 @@ import { platformOperations } from '@/lib/database'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -30,7 +30,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -47,7 +47,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Integração não encontrada' }, { status: 404 })
     }
 
-    const updatedPlatform = await platformOperations.update((await params).id, {
+    const updatedPlatform = await platformOperations.update({ id: (await params).id }, {
       ...(name && { name }),
       ...(config && { config }),
       ...(isActive !== undefined && { isActive })
@@ -63,7 +63,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -78,7 +78,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Integração não encontrada' }, { status: 404 })
     }
 
-    await platformOperations.delete((await params).id)
+    await platformOperations.delete({ id: (await params).id })
 
     return NextResponse.json({ success: true })
     

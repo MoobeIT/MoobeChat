@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
       console.log('Revogando token do Instagram...')
 
       // Atualizar configuração da plataforma
-      await platformOperations.update(platformId, {
-        isActive: false,
+      await platformOperations.update({ id: platformId }, {
+        is_active: false,
         config: {
           ...platform.config,
           accessToken: null,
@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
       console.error('Erro no Instagram API:', instagramError)
       
       // Mesmo com erro, atualizar status local
-      await platformOperations.update(platformId, {
-        isActive: false,
+      await platformOperations.update({ id: platformId }, {
+        is_active: false,
         config: {
           ...platform.config,
           accessToken: null,

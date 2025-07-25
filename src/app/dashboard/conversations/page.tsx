@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 
@@ -435,8 +435,21 @@ export default function ConversationsPage() {
     const [selectedPlatform, setSelectedPlatform] = useState('')
     const [loading, setLoading] = useState(false)
 
+    // Filtrar plataformas ativas
+    const activePlatforms = platforms.filter(platform => platform.is_active)
+    
+    // Auto-selecionar se há apenas uma plataforma ativa
+    React.useEffect(() => {
+      if (activePlatforms.length === 1 && !selectedPlatform) {
+        setSelectedPlatform(activePlatforms[0].id)
+      }
+    }, [activePlatforms, selectedPlatform])
+
     const handleCreateConversation = async () => {
-      if (!phoneNumber.trim() || !selectedPlatform) return
+      // Se há apenas uma plataforma, usar ela automaticamente
+      const platformToUse = activePlatforms.length === 1 ? activePlatforms[0].id : selectedPlatform
+      
+      if (!phoneNumber.trim() || !platformToUse) return
 
       setLoading(true)
       try {
@@ -446,7 +459,7 @@ export default function ConversationsPage() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            platformId: selectedPlatform,
+            platformId: platformToUse,
             customerName: customerName.trim() || 'Cliente',
             customerPhone: phoneNumber.trim(),
           }),
@@ -490,23 +503,50 @@ export default function ConversationsPage() {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Plataforma
-              </label>
-              <select
-                value={selectedPlatform}
-                onChange={(e) => setSelectedPlatform(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-              >
-                <option value="">Selecione uma plataforma</option>
-                {platforms.filter(p => p.is_active === true).map(platform => (
-                  <option key={platform.id} value={platform.id}>
-                    {platform.name} ({platform.type})
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Mostrar seleção de plataforma apenas se há mais de uma */}
+            {activePlatforms.length > 1 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Plataforma
+                </label>
+                <select
+                  value={selectedPlatform}
+                  onChange={(e) => setSelectedPlatform(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                >
+                  <option value="">Selecione uma plataforma</option>
+                  {activePlatforms.map(platform => (
+                    <option key={platform.id} value={platform.id}>
+                      {platform.name} ({platform.type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Mostrar plataforma selecionada automaticamente se há apenas uma */}
+            {activePlatforms.length === 1 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Plataforma
+                </label>
+                <div className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white">
+                  {activePlatforms[0].name} ({activePlatforms[0].type})
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Plataforma selecionada automaticamente
+                </p>
+              </div>
+            )}
+
+            {/* Mostrar aviso se não há plataformas ativas */}
+            {activePlatforms.length === 0 && (
+              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+                <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                  ⚠️ Nenhuma plataforma ativa encontrada. Configure uma plataforma na página de integrações primeiro.
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -547,9 +587,9 @@ export default function ConversationsPage() {
             </button>
             <button
               onClick={handleCreateConversation}
-              disabled={!phoneNumber.trim() || !selectedPlatform || loading}
+              disabled={!phoneNumber.trim() || (activePlatforms.length > 1 && !selectedPlatform) || activePlatforms.length === 0 || loading}
               className={`px-4 py-2 rounded-md transition-colors ${
-                phoneNumber.trim() && selectedPlatform && !loading
+                phoneNumber.trim() && (activePlatforms.length === 1 || selectedPlatform) && activePlatforms.length > 0 && !loading
                   ? 'bg-blue-500 text-white hover:bg-blue-600'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}

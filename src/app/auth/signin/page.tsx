@@ -1,28 +1,36 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { PasswordInput } from '@/components/ui/password-input'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
 
-export default function SignInPage() {
+// Desabilitar prerendering para esta página
+export const dynamic = 'force-dynamic'
+
+function SignInForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  // Verificar se o componente foi montado
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Pre-preencher email se vier da página de registro
   useEffect(() => {
-    const emailParam = searchParams.get('email')
-    if (emailParam) {
-      setEmail(emailParam)
+    if (mounted) {
+      const emailParam = searchParams.get('email')
+      if (emailParam) {
+        setEmail(emailParam)
+      }
     }
-  }, [searchParams])
+  }, [searchParams, mounted])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,11 +62,6 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4 relative">
-      {/* Theme Toggle */}
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
-      
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -92,9 +95,10 @@ export default function SignInPage() {
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Senha
             </label>
-            <PasswordInput
+            <input
               id="password"
               name="password"
+              type="password"
               autoComplete="current-password"
               required
               value={password}
@@ -132,8 +136,6 @@ export default function SignInPage() {
           </p>
         </div>
 
-
-
         {/* Link para voltar */}
         <div className="mt-6 text-center">
           <Link href="/" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
@@ -142,5 +144,13 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <SignInForm />
+    </Suspense>
   )
 }

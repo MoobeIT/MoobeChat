@@ -76,8 +76,12 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Resposta do webhook:', webhookResult)
 
-    // Verificar se a mensagem foi criada
-    const createdMessage = await messageOperations.findByContent(message, platformId)
+    // Verificar se a mensagem foi criada (buscar por conteúdo manualmente)
+    const allMessages = await messageOperations.findMany({ conversation_id: null })
+    const createdMessage = allMessages.find(msg => 
+      msg.content === message && 
+      msg.conversation?.platform_id === platformId
+    )
 
     return NextResponse.json({
       success: true,

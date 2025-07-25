@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     // Extrair o workspace do objeto retornado
     const workspace = workspaceData.workspace
-    const workspaceId = workspace?.id || workspaceData.workspace_id
+    const workspaceId = (workspace as any)?.id || workspaceData.workspace_id
 
     if (!workspaceId) {
       return NextResponse.json({ error: 'Workspace ID não encontrado' }, { status: 404 })

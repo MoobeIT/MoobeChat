@@ -61,6 +61,7 @@ export type KanbanBoard = {
   id: string
   name: string
   workspace_id: string
+  is_default?: boolean | null
   created_at: string
   updated_at: string
 }

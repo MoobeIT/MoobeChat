@@ -6,7 +6,7 @@ import { uazApiClient } from '@/lib/uazapi'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -40,9 +40,10 @@ export async function GET(
     const formattedMessages = messages.map(msg => ({
       id: msg.id,
       content: msg.content,
-      sender: msg.direction === 'OUTGOING' ? 'USER' : 'CUSTOMER',
-      timestamp: msg.created_at,
-      type: msg.message_type
+      direction: msg.direction,
+      messageType: msg.message_type,
+      createdAt: msg.created_at,
+      senderName: msg.sender_name
     }))
 
     return NextResponse.json({ messages: formattedMessages, conversation })
@@ -55,7 +56,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -125,9 +126,10 @@ export async function POST(
     const formattedMessage = {
       id: message.id,
       content: message.content,
-      sender: message.direction === 'OUTGOING' ? 'USER' : 'CUSTOMER',
-      timestamp: message.created_at,
-      type: message.message_type
+      direction: message.direction,
+      messageType: message.message_type,
+      createdAt: message.created_at,
+      senderName: message.sender_name
     }
 
     return NextResponse.json({ message: formattedMessage })

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const { name, phone, email, notes, tags, platformId } = await request.json()
+    const { name, phone, email, platformId } = await request.json()
 
     if (!name || !phone || !platformId) {
       return NextResponse.json({ error: 'Nome, telefone e plataforma são obrigatórios' }, { status: 400 })
@@ -49,20 +49,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Plataforma não encontrada' }, { status: 404 })
     }
 
-    const existingContact = await contactOperations.findByPhone(phone, platform.workspace_id)
+    // Verificar se já existe contato com o mesmo telefone na mesma plataforma
+    const existingContacts = await contactOperations.findMany({
+      workspace_id: platform.workspace_id
+    })
+    
+    const duplicateContact = existingContacts.find(contact => 
+      contact.phone === phone && 
+      contact.platform_id === platformId
+    )
 
-    if (existingContact) {
+    if (duplicateContact) {
       return NextResponse.json({ error: 'Contato já existe para esta plataforma' }, { status: 409 })
     }
 
     const contact = await contactOperations.create({
       workspace_id: platform.workspace_id,
-      platformId: platformId,
+      platform_id: platformId,
       name,
       phone,
-      email: email || null,
-      notes: notes || null,
-      tags: tags || []
+      email: email || null
     })
 
     return NextResponse.json({ contact })

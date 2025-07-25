@@ -6,7 +6,7 @@ import { supabaseTyped } from '@/lib/supabase'
 // PATCH - Atualizar coluna (renomear, mudar cor, etc.)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -16,7 +16,7 @@ export async function PATCH(
     }
 
     const { name, color, position } = await request.json()
-    const columnId = params.id
+    const columnId = (await params).id
 
     if (!columnId) {
       return NextResponse.json({ error: 'ID da coluna é obrigatório' }, { status: 400 })
@@ -63,7 +63,7 @@ export async function PATCH(
 // DELETE - Deletar coluna
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptionsSupabase)
@@ -72,7 +72,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
 
-    const columnId = params.id
+    const columnId = (await params).id
 
     if (!columnId) {
       return NextResponse.json({ error: 'ID da coluna é obrigatório' }, { status: 400 })
