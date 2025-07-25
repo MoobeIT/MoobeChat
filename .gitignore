@@ -74,3 +74,22 @@ scripts/logs/
 # Documentation temp files
 docs/temp/
 docs/*.tmp
+
+# Deploy específico
+deploy/*.backup
+deploy/*.log
+
+# Arquivos de backup do servidor
+*.backup.*
+.env.local.backup.*
+
+# Chaves SSH e certificados
+*.pem
+*.ppk
+*.key
+*.crt
+
+# Logs do servidor
+/var/log/
+*.access.log
+*.error.log
